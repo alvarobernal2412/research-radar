@@ -18,3 +18,6 @@ data/*.json
 
 # your deployment config (artifact URL, task id); copy from site.example.json
 config/site.json
+
+# local mirror secrets
+infra/.env
