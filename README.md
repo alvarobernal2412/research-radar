@@ -101,7 +101,7 @@ flowchart LR
 - The **site** is one HTML page published as a Claude artifact. It reads and writes the artifact's database through the runtime's `db` capability. It can't reach the web itself.
 - The **scan** is a Claude scheduled task. Its instructions are [pipeline/scan-prompt.md](pipeline/scan-prompt.md). It searches OpenAlex first, then the sources you enabled through your Chrome. It de-duplicates the results, reads the papers and writes them to the database.
 - The site talks to the scan through `meta/control`, for example "rescore everything" or "retry these papers". "Run now" starts the task immediately.
-- **Secrets** such as the OpenAlex key are entered on the site and stored in `data/users/<you>/settings`, which only you can read. They never enter this repository or the export.
+- **Secrets** such as the OpenAlex key are entered on the site and stored in `data/users/<you>/settings`, which only you can read. They never enter this repository or the export. The scheduled scan reads the key from there, not from `.env`; the root `.env` is only for running the OpenAlex CLI from your own machine.
 
 More detail: [docs/architecture.md](docs/architecture.md). Data model: [pipeline/schema/radar.schema.json](pipeline/schema/radar.schema.json).
 
@@ -123,13 +123,17 @@ pipeline/
   radar/scoring.py      affinity formula and completeness rules
   schema/               JSON Schema of every stored document and the export file
 config/
-  site.json             this deployment (artifact URL, task id, names); no secrets
+  site.example.json     template for your deployment settings (no secrets)
+  site.json             your deployment (artifact URL, task id, names); git-ignored, create it from the example
+infra/                  optional local mirror: docker compose, Postgres, document API (see below)
 tests/
   test_pipeline.py      pytest for the pipeline helpers
   smoke/smoke.js        end-to-end test of the built page against a mocked runtime
   fixtures/             sample OpenAlex work and paper records
-docs/
+docs/                   architecture, new-topic walkthrough, one-prompt setup guide
 data/                   put exported JSON snapshots here (git-ignored unless you add them)
+.env.example            OpenAlex key and contact email for running the CLI locally (copy to .env, git-ignored)
+LICENSE                 AGPL-3.0-or-later
 ```
 
 ## Working on it
@@ -139,7 +143,7 @@ python site/build.py --check            # build dist/radar.html and syntax-check
 python -m pytest                        # pipeline tests
 npm install && npm run smoke            # end-to-end test (set CHROMIUM=/path/to/chrome if needed)
 
-# OpenAlex from your own machine (set OPENALEX_API_KEY first)
+# OpenAlex from your own machine (copy .env.example to .env and set OPENALEX_API_KEY, or export it)
 cd pipeline && python -m radar.openalex search "analytic provenance" --since 2025-01-01 --max 20
 ```
 
@@ -163,7 +167,7 @@ scheduled Claude task ──writes──▶ artifact database (source of truth)
 
 To make the scheduled task feed the mirror, append the step in [infra/scan-mirror-step.md](infra/scan-mirror-step.md) to the task prompt. Placeholder example, to pass to Claude when you create or update the task:
 
-> Update my scheduled task "<site> weekly scan". Keep its current prompt and append the contents of `<REPO_PATH>/infra/scan-mirror-step.md` as step 7, with these values filled in:
+> Update my scheduled task "<site> weekly scan". Keep its current prompt and append the contents of `<REPO_PATH>/infra/scan-mirror-step.md` as step 9 (after "Check and report"), with these values filled in:
 > - `{{ARTIFACT_URL}}` = `<ARTIFACT_URL>` (artifactUrl in config/site.json)
 > - `<REPO_PATH>` = `<ABSOLUTE PATH TO THIS REPO ON THE MACHINE THE TASK RUNS ON>`
 > - `<MIRROR_DIR>` = `<A SCRATCH FOLDER OUTSIDE THE REPO, e.g. ~/radar-mirror-scratch>`

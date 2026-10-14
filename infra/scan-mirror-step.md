@@ -1,4 +1,4 @@
-## 7. Mirror to the local stack (optional)
+## 9. Mirror to the local stack (optional)
 
 Run this only after every write above has succeeded and the run summary is stored.
 
