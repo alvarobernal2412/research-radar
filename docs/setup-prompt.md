@@ -1,6 +1,6 @@
 # Setup prompt
 
-One prompt that takes a fresh machine from nothing to a configured radar: clone, build, publish, schedule. Paste it into Claude Code (the desktop app, with Claude in Chrome if you want the browser sources). The agent first asks you for the folder, site name, schedule, your name and a few options, so there is nothing to fill in.
+One prompt that takes a fresh machine from nothing to a configured radar: clone, build, publish, schedule. Paste it into Claude Code (the desktop app, with Claude in Chrome if you want the browser sources). The agent first asks you for the folder, site name, schedule, your name and a few options as multiple-choice questions (with free text under "Other"), so there is nothing to fill in.
 
 ```text
 I want to set up Research Radar for my own research topic. Clone the repo and
@@ -8,15 +8,28 @@ configure everything, then tell me what is left for me to do by hand.
 
 Repo: https://github.com/alvarobernal2412/research-radar
 
-Before you do anything else, ask me for the following in a single message and
-wait for my answers. Offer the suggested default where one is shown:
-1. Folder to clone into (suggest: ~/code/research-radar).
-2. Site name (e.g. "Process Radar") and a short tagline for my topic.
-3. Scan schedule and my time zone (suggest: Sundays 09:00).
-4. My name exactly as it appears on papers, so the network marks me.
-5. Look-back window in years (suggest: 3) and minimum affinity 0-100
-   (suggest: 35).
-6. Whether I also want the optional local mirror (docker compose in infra/).
+Before you do anything else, ask me for the values below. Use the
+AskUserQuestion tool (multiple-choice with an "Other" free-text option) in two
+calls, because it takes at most 4 questions each. If that tool is not
+available, ask the same questions in plain text in one message. Mark the
+suggested option "(Recommended)" and wait for my answers.
+
+Call 1:
+1. Clone folder: ~/code/research-radar (Recommended) / the current directory /
+   Other.
+2. Scan schedule: Sundays 09:00 (Recommended) / Mondays 09:00 / daily 07:00 /
+   Other. Also ask my time zone if you cannot read it from this machine.
+3. Look-back window in years: 3 (Recommended) / 2 / 5 / Other.
+4. Minimum affinity, 0-100: 35 (Recommended) / 50 / 20 / Other.
+
+Call 2:
+5. Local mirror (docker compose in infra/): No (Recommended) / Yes.
+6. Site name and a short tagline for my topic: offer one or two suggestions
+   (for example "Process Radar" / "your topic in a few words") and let me type
+   my own under Other.
+7. My name exactly as it appears on papers, so the network marks me: use my
+   git user.name (Recommended, if set) / skip, I will add it on the site /
+   Other, to type it.
 
 Steps:
 1. git clone the repo into the folder I gave you, then read README.md and
