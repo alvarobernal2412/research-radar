@@ -3,6 +3,7 @@
   "title": "Research Radar",
   "outFile": "radar.html",
   "artifactUrl": "https://claude.ai/artifact/<id>",
+  "lastPublishedCommit": "",
   "triggerId": "trig_...",
   "siteName": "Research Radar",
   "tagline": "your topic in a few words",

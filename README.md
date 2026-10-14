@@ -10,6 +10,8 @@ A literature radar for one research topic. A weekly Claude scan finds new papers
   - future work;
   - limitations stated by the authors and limitations identified by the AI;
   - author profiles.
+
+  Every row has a checkbox. **Select all shown** and **Deselect all shown** act on the papers that match your filters and search, and **Export BibTeX** downloads the selection as a `.bib` file (`@inproceedings` for conferences and workshops, `@article` for journals, `@misc` for preprints).
 - **Network:** a co-authorship graph of the community, with a people checklist.
 - **Topic & scans:** your topic profile, plus:
   - deriving the topic from seed papers;
@@ -18,7 +20,7 @@ A literature radar for one research topic. A weekly Claude scan finds new papers
   - the scan log;
   - data export.
 
-Conferences and journals both have an *Emerging* section. Records the scan could only partly collect are flagged: a paper analysed from its abstract alone is marked **Partial**, and its author-stated fields show as *unknown* rather than *none stated*.
+Conferences and journals both have an *Emerging* section. Records the scan could only partly collect are flagged: a paper analysed from its abstract alone is marked **Partial**, and its author-stated fields show as *unknown* rather than *none stated*. When the OpenAlex source is on, a retry first tries to fill the gaps from OpenAlex (abstract, keywords, open-access link) before looking for the open-access copy or publisher page again. OpenAlex has no full text, so limitations and future work stay unknown until the paper is actually read.
 
 Nothing in the code is tied to one topic. To use it for another topic, see [docs/new-topic.md](docs/new-topic.md).
 
@@ -66,9 +68,9 @@ Steps:
 4. Build: python site/build.py --check
 5. Publish dist/radar.html as a NEW artifact with the capabilities in
    site/capabilities.json. Put the returned URL into config/site.json as
-   artifactUrl. If config/site.json already has a real artifactUrl (this is a
-   re-run), read that artifact first and update it in place instead of
-   creating a second one.
+   artifactUrl, and git rev-parse HEAD as lastPublishedCommit. If
+   config/site.json already has a real artifactUrl (this is a re-run), read
+   that artifact first and update it in place instead of creating a second one.
 6. Run python pipeline/render_prompt.py and create a scheduled task named
    "<site name> weekly scan" at my schedule, using that output as its prompt.
    It must run on my computer (the Chrome sources need it). Put the task id
@@ -100,6 +102,64 @@ python site/build.py --check
 ```
 
 and continue with [docs/new-topic.md](docs/new-topic.md). What the prompt cannot do for you (API key, topic, task approval) is listed in [docs/setup-prompt.md](docs/setup-prompt.md).
+
+## Update
+
+When the repo has new commits, bring your deployment up to date with one prompt. Paste this into Claude Code from your clone. It pulls, tests, rebuilds, republishes the artifact in place (your data is kept) and updates the scheduled task only if the scan instructions changed:
+
+```text
+Update my Research Radar deployment to the latest code in the repo. Do not
+change my data.
+
+Before you do anything else, ask me with the AskUserQuestion tool (or in plain
+text if it is not available):
+1. Which folder holds my clone: the current directory (Recommended) / Other.
+2. If the scan instructions changed, should you update my scheduled task
+   automatically (Recommended), show me the diff first, or leave the task alone?
+
+Steps:
+1. Go to the clone. Run git status. If there are uncommitted changes, stop and
+   show them to me. Check that config/site.json exists and has an artifactUrl;
+   if not, this clone was never installed: point me to the install prompt in
+   README.md and stop.
+2. git fetch, then git pull --ff-only. Never merge, rebase or force anything
+   without asking me. Let OLD be config/site.json's lastPublishedCommit (or, if
+   it is missing, the commit I was on before pulling) and NEW be HEAD. If
+   OLD and NEW are the same, tell me everything is up to date and stop.
+3. Summarise git log --oneline OLD..NEW and git diff --stat OLD..NEW in plain
+   language, grouped as: page (site/), scan instructions
+   (pipeline/scan-prompt.md, pipeline/render_prompt.py), data model
+   (pipeline/schema/), capabilities (site/capabilities.json), local mirror
+   (infra/), docs and tests.
+4. Run python -m pytest and python site/build.py --check. Stop and show me the
+   output if either fails.
+5. Publish the page in place: read the live artifact at artifactUrl first, then
+   publish dist/radar.html to that same URL. Pass capabilities only if
+   site/capabilities.json changed between OLD and NEW. The data lives in the
+   artifact's database, so it is kept.
+6. If pipeline/scan-prompt.md or pipeline/render_prompt.py changed: run
+   python pipeline/render_prompt.py, compare it with my scheduled task's
+   current prompt, and update the task according to my answer to question 2.
+   Keep its schedule and triggerId, and keep any local-mirror step 9 that was
+   appended to it earlier.
+7. If infra/ changed and the local mirror stack exists: run
+   docker compose up -d --build inside infra/. Never use down -v.
+8. If pipeline/schema/ changed, tell me what changed and whether stored
+   documents need a migration. Do not write to the database yourself unless a
+   commit message or docs say a migration is required, and then ask me first.
+9. Verify: run the smoke test if node and a browser are available, otherwise
+   open the artifact and check that it loads without errors. Report anything
+   that failed.
+10. Write NEW into config/site.json as lastPublishedCommit and report what was
+    updated and what I still have to do myself.
+
+Rules:
+- Never commit, force-push or delete data. Never touch .env, infra/.env or any
+  API key.
+- If a step fails, stop and tell me; do not work around it silently.
+```
+
+More detail: [docs/update-prompt.md](docs/update-prompt.md).
 
 ## How it works
 
@@ -147,7 +207,7 @@ tests/
   test_pipeline.py      pytest for the pipeline helpers
   smoke/smoke.js        end-to-end test of the built page against a mocked runtime
   fixtures/             sample OpenAlex work and paper records
-docs/                   architecture, new-topic walkthrough, one-prompt setup guide
+docs/                   architecture, new-topic walkthrough, install and update prompts
 data/                   put exported JSON snapshots here (git-ignored unless you add them)
 .env.example            OpenAlex key and contact email for running the CLI locally (copy to .env, git-ignored)
 LICENSE                 AGPL-3.0-or-later

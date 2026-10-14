@@ -42,9 +42,9 @@ Steps:
 4. Build: python site/build.py --check
 5. Publish dist/radar.html as a NEW artifact with the capabilities in
    site/capabilities.json. Put the returned URL into config/site.json as
-   artifactUrl. If config/site.json already has a real artifactUrl (this is a
-   re-run), read that artifact first and update it in place instead of
-   creating a second one.
+   artifactUrl, and git rev-parse HEAD as lastPublishedCommit. If
+   config/site.json already has a real artifactUrl (this is a re-run), read
+   that artifact first and update it in place instead of creating a second one.
 6. Run python pipeline/render_prompt.py and create a scheduled task named
    "<site name> weekly scan" at my schedule, using that output as its prompt.
    It must run on my computer (the Chrome sources need it). Put the task id
@@ -85,4 +85,4 @@ The prompt is safe to run again in an existing clone: if `config/site.json` alre
 - The Claude desktop app with Claude in Chrome, if you want DBLP, IEEE, SpringerLink, ACM, arXiv, Scholar or Scopus. OpenAlex needs neither.
 - Python 3.11+. Node and Docker are optional (smoke test and the local mirror).
 
-Step-by-step version of the same flow: [new-topic.md](new-topic.md).
+Step-by-step version of the same flow: [new-topic.md](new-topic.md). To bring an existing install up to date later, use the [update prompt](update-prompt.md).
