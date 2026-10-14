@@ -1,0 +1,30 @@
+<title>{{TITLE}}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap">
+<style>
+{{STYLES}}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><b>Research Radar</b></div>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#conferences" data-tab="conferences">Conferences</a>
+      <a href="#journals" data-tab="journals">Journals</a>
+      <a href="#contributions" data-tab="contributions">Contributions</a>
+      <a href="#network" data-tab="network">Network</a>
+      <a href="#topic" data-tab="topic">Topic &amp; scans</a>
+    </nav>
+    <div class="runstat" id="runstat"><span class="dot"></span><span>Connecting…</span></div>
+  </div>
+</header>
+<main id="app"><div class="empty"><b>Loading the radar</b><span>Reading venues and papers from the store.</span></div></main>
+
+{{VENDOR_SCRIPTS}}
+<script>
+(function(){
+"use strict";
+{{SCRIPTS}}
+})();
+</script>

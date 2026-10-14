@@ -1,0 +1,1062 @@
+[
+ {
+  "title": "Example Paper 1: A Study of Provenance models",
+  "authors": [
+   {
+    "name": "Alex Example",
+    "affiliation": "Example University",
+    "keywords": [
+     "exploratory process mining",
+     "analytic provenance"
+    ],
+    "self": true
+   },
+   {
+    "name": "Author 01",
+    "affiliation": "Example University",
+    "keywords": [
+     "exploratory process mining",
+     "analytic provenance"
+    ],
+    "profileUrl": "https://openalex.org/A0000000002"
+   },
+   {
+    "name": "Author 03",
+    "affiliation": "Example University",
+    "keywords": [
+     "exploratory process mining",
+     "analytic provenance"
+    ],
+    "profileUrl": "https://openalex.org/A0000000004"
+   },
+   {
+    "name": "Author 05",
+    "affiliation": "Example University",
+    "keywords": [
+     "exploratory process mining",
+     "analytic provenance"
+    ],
+    "profileUrl": "https://openalex.org/A0000000006"
+   },
+   {
+    "name": "Author 07",
+    "affiliation": "Example University",
+    "keywords": [
+     "exploratory process mining",
+     "analytic provenance"
+    ],
+    "profileUrl": "https://openalex.org/A0000000008"
+   }
+  ],
+  "year": 2026,
+  "publishedDate": "2026-10-05",
+  "venueId": "exconf",
+  "venueName": "Example Conference 2026",
+  "venueKind": "conference",
+  "paperType": "Conference paper",
+  "doi": "10.1234/example.1",
+  "url": "https://doi.org/10.1234/example.1",
+  "pdfUrl": "",
+  "keywords": [
+   "exploratory process mining",
+   "analytic provenance",
+   "conceptual model"
+  ],
+  "affinity": 94,
+  "affinityBreakdown": [
+   {
+    "theme": "Provenance models",
+    "score": 100
+   },
+   {
+    "theme": "Exploratory process mining",
+    "score": 100
+   },
+   {
+    "theme": "Provenance features & tooling",
+    "score": 60
+   },
+   {
+    "theme": "Annotations & reasoning",
+    "score": 30
+   },
+   {
+    "theme": "Provenance-backed reporting",
+    "score": 30
+   }
+  ],
+  "affinityNote": "Synthetic fixture note.",
+  "themes": [
+   "Provenance models",
+   "Exploratory process mining",
+   "Provenance features & tooling"
+  ],
+  "abstract": "",
+  "summary": "Synthetic summary of example paper 1, written for the test fixture.",
+  "contribution": "Synthetic contribution statement for example paper 1.",
+  "futureWork": [],
+  "limitationsStated": [],
+  "limitationsAI": [],
+  "fullTextRead": false,
+  "foundIn": [
+   "SpringerLink"
+  ],
+  "discoveredAt": "2026-10-14",
+  "updatedAt": "2026-10-14T06:00:00Z",
+  "pendingDetail": true,
+  "ownPaper": true,
+  "id": "p1"
+ },
+ {
+  "affinity": 74,
+  "affinityBreakdown": [
+   {
+    "score": 100,
+    "theme": "User studies"
+   },
+   {
+    "score": 80,
+    "theme": "Exploratory process mining"
+   },
+   {
+    "score": 40,
+    "theme": "Annotations & reasoning"
+   },
+   {
+    "score": 20,
+    "theme": "Provenance visualization"
+   }
+  ],
+  "affinityNote": "Affinity 74: synthetic fixture note.",
+  "authors": [
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "visual process analytics"
+    ],
+    "name": "Author 09",
+    "profileUrl": "https://openalex.org/A0000000010"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "visual process analytics"
+    ],
+    "name": "Author 11",
+    "profileUrl": "https://openalex.org/A0000000012"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "visual process analytics"
+    ],
+    "name": "Author 07",
+    "profileUrl": "https://openalex.org/A0000000008"
+   }
+  ],
+  "citations": 1,
+  "contribution": "Synthetic contribution statement for example paper 2.",
+  "discoveredAt": "2026-10-13",
+  "doi": "10.1234/example.2",
+  "foundIn": [
+   "SpringerLink"
+  ],
+  "fullTextRead": false,
+  "futureWork": [],
+  "keywords": [
+   "process mining",
+   "visual process analytics",
+   "visualizations",
+   "observational study"
+  ],
+  "limitationsAI": [
+   "Synthetic limitationsAI item 1.",
+   "Synthetic limitationsAI item 2.",
+   "Synthetic limitationsAI item 3."
+  ],
+  "limitationsStated": [],
+  "paperType": "Full research paper",
+  "pdfUrl": "",
+  "pendingDetail": false,
+  "publishedDate": "2026-06",
+  "summary": "Synthetic summary of example paper 2, written for the test fixture.",
+  "themes": [
+   "User studies",
+   "Exploratory process mining"
+  ],
+  "title": "Example Paper 2: A Study of User studies",
+  "updatedAt": "2026-10-13T12:00:00Z",
+  "url": "https://doi.org/10.1234/example.2",
+  "venueId": "exconf",
+  "venueKind": "conference",
+  "venueName": "Example Conference 2026",
+  "year": 2026,
+  "id": "p2"
+ },
+ {
+  "affinity": 70,
+  "affinityBreakdown": [
+   {
+    "score": 80,
+    "theme": "Exploratory process mining"
+   },
+   {
+    "score": 50,
+    "theme": "User studies"
+   },
+   {
+    "score": 50,
+    "theme": "Annotations & reasoning"
+   },
+   {
+    "score": 30,
+    "theme": "Provenance-backed reporting"
+   }
+  ],
+  "affinityNote": "Affinity 70: synthetic fixture note.",
+  "authors": [
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "analysis questions",
+     "taxonomy"
+    ],
+    "name": "Author 09",
+    "profileUrl": "https://openalex.org/A0000000010"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "analysis questions",
+     "taxonomy"
+    ],
+    "name": "Author 11",
+    "profileUrl": "https://openalex.org/A0000000012"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "analysis questions",
+     "taxonomy"
+    ],
+    "name": "Author 13",
+    "profileUrl": "https://openalex.org/A0000000014"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "analysis questions",
+     "taxonomy"
+    ],
+    "name": "Author 05",
+    "profileUrl": "https://openalex.org/A0000000006"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "analysis questions",
+     "taxonomy"
+    ],
+    "name": "Author 07",
+    "profileUrl": "https://openalex.org/A0000000008"
+   }
+  ],
+  "citations": 2,
+  "contribution": "Synthetic contribution statement for example paper 3.",
+  "discoveredAt": "2026-10-13",
+  "doi": "10.1234/example.3",
+  "foundIn": [
+   "DBLP",
+   "SpringerLink"
+  ],
+  "fullTextRead": true,
+  "futureWork": [
+   "Synthetic futureWork item 1.",
+   "Synthetic futureWork item 2.",
+   "Synthetic futureWork item 3."
+  ],
+  "keywords": [
+   "analysis questions",
+   "taxonomy",
+   "question catalog",
+   "process mining projects",
+   "design science"
+  ],
+  "limitationsAI": [
+   "Synthetic limitationsAI item 1.",
+   "Synthetic limitationsAI item 2."
+  ],
+  "limitationsStated": [
+   "Synthetic limitationsStated item 1.",
+   "Synthetic limitationsStated item 2.",
+   "Synthetic limitationsStated item 3.",
+   "Synthetic limitationsStated item 4."
+  ],
+  "paperType": "Journal article",
+  "pdfUrl": "https://example.org/papers/3.pdf",
+  "pendingDetail": false,
+  "publishedDate": "2025-10-24",
+  "summary": "Synthetic summary of example paper 3, written for the test fixture.",
+  "themes": [
+   "Exploratory process mining",
+   "User studies",
+   "Annotations & reasoning"
+  ],
+  "title": "Example Paper 3: A Study of Exploratory process mining",
+  "updatedAt": "2026-10-13T12:00:00Z",
+  "url": "https://doi.org/10.1234/example.3",
+  "venueId": "exjournal",
+  "venueKind": "journal",
+  "venueName": "Example Journal 2026",
+  "year": 2026,
+  "id": "p3"
+ },
+ {
+  "affinity": 94,
+  "affinityBreakdown": [
+   {
+    "score": 100,
+    "theme": "Provenance features & tooling"
+   },
+   {
+    "score": 100,
+    "theme": "Exploratory process mining"
+   },
+   {
+    "score": 70,
+    "theme": "Annotations & reasoning"
+   },
+   {
+    "score": 50,
+    "theme": "Provenance models"
+   },
+   {
+    "score": 50,
+    "theme": "Provenance-backed reporting"
+   }
+  ],
+  "affinityNote": "Affinity 94: synthetic fixture note.",
+  "authors": [
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "result validation"
+    ],
+    "name": "Author 11",
+    "profileUrl": "https://openalex.org/A0000000012"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "result validation"
+    ],
+    "name": "Author 01",
+    "profileUrl": "https://openalex.org/A0000000002"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "result validation"
+    ],
+    "name": "Author 07",
+    "profileUrl": "https://openalex.org/A0000000008"
+   }
+  ],
+  "citations": 4,
+  "contribution": "Synthetic contribution statement for example paper 4.",
+  "discoveredAt": "2026-10-13",
+  "doi": "10.1234/example.4",
+  "foundIn": [
+   "DBLP",
+   "SpringerLink"
+  ],
+  "fullTextRead": false,
+  "futureWork": [],
+  "keywords": [
+   "process mining",
+   "result validation",
+   "result set comparison",
+   "exploratory analysis",
+   "meta-analysis support",
+   "LogView"
+  ],
+  "limitationsAI": [
+   "Synthetic limitationsAI item 1.",
+   "Synthetic limitationsAI item 2.",
+   "Synthetic limitationsAI item 3.",
+   "Synthetic limitationsAI item 4."
+  ],
+  "limitationsStated": [],
+  "paperType": "Forum paper",
+  "pdfUrl": "https://example.org/papers/4.pdf",
+  "pendingDetail": false,
+  "publishedDate": "2024-09",
+  "summary": "Synthetic summary of example paper 4, written for the test fixture.",
+  "themes": [
+   "Provenance features & tooling",
+   "Exploratory process mining",
+   "Annotations & reasoning",
+   "Provenance models",
+   "Provenance-backed reporting"
+  ],
+  "title": "Example Paper 4: A Study of Provenance features & tooling",
+  "updatedAt": "2026-10-13T12:00:00Z",
+  "url": "https://doi.org/10.1234/example.4",
+  "venueId": "exconf",
+  "venueKind": "conference",
+  "venueName": "Example Conference 2024",
+  "year": 2024,
+  "id": "p4"
+ },
+ {
+  "affinity": 54,
+  "affinityBreakdown": [
+   {
+    "score": 60,
+    "theme": "Exploratory process mining"
+   },
+   {
+    "score": 50,
+    "theme": "Provenance visualization"
+   },
+   {
+    "score": 30,
+    "theme": "Annotations & reasoning"
+   }
+  ],
+  "affinityNote": "Affinity 54: synthetic fixture note.",
+  "authors": [
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "visual analytics",
+     "process mining"
+    ],
+    "name": "Author 15",
+    "profileUrl": "https://openalex.org/A0000000016"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "visual analytics",
+     "process mining"
+    ],
+    "name": "Author 17",
+    "profileUrl": "https://openalex.org/A0000000018"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "visual analytics",
+     "process mining"
+    ],
+    "name": "Author 19",
+    "profileUrl": "https://openalex.org/A0000000020"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "visual analytics",
+     "process mining"
+    ],
+    "name": "Author 07",
+    "profileUrl": "https://openalex.org/A0000000008"
+   }
+  ],
+  "citations": 19,
+  "contribution": "Synthetic contribution statement for example paper 5.",
+  "discoveredAt": "2026-10-13",
+  "doi": "10.1234/example.5",
+  "foundIn": [
+   "DBLP",
+   "IEEE Xplore"
+  ],
+  "fullTextRead": false,
+  "futureWork": [],
+  "keywords": [
+   "visual analytics",
+   "process mining",
+   "research agenda",
+   "event data"
+  ],
+  "limitationsAI": [
+   "Synthetic limitationsAI item 1.",
+   "Synthetic limitationsAI item 2."
+  ],
+  "limitationsStated": [],
+  "paperType": "Journal article",
+  "pdfUrl": "",
+  "pendingDetail": false,
+  "publishedDate": "2024-11",
+  "summary": "Synthetic summary of example paper 5, written for the test fixture.",
+  "themes": [
+   "Exploratory process mining",
+   "Provenance visualization"
+  ],
+  "title": "Example Paper 5: A Study of Exploratory process mining",
+  "updatedAt": "2026-10-13T12:00:00Z",
+  "url": "https://doi.org/10.1234/example.5",
+  "venueId": "exjournal",
+  "venueKind": "journal",
+  "venueName": "Example Journal 2024",
+  "year": 2024,
+  "id": "p5"
+ },
+ {
+  "affinity": 52,
+  "affinityBreakdown": [
+   {
+    "score": 60,
+    "theme": "Exploratory process mining"
+   },
+   {
+    "score": 40,
+    "theme": "Provenance visualization"
+   },
+   {
+    "score": 30,
+    "theme": "User studies"
+   },
+   {
+    "score": 20,
+    "theme": "Annotations & reasoning"
+   }
+  ],
+  "affinityNote": "Affinity 52: synthetic fixture note.",
+  "authors": [
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "visual analytics"
+    ],
+    "name": "Author 09",
+    "profileUrl": "https://openalex.org/A0000000010"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "visual analytics"
+    ],
+    "name": "Author 21",
+    "profileUrl": "https://openalex.org/A0000000022"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "visual analytics"
+    ],
+    "name": "Author 19",
+    "profileUrl": "https://openalex.org/A0000000020"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "visual analytics"
+    ],
+    "name": "Author 23",
+    "profileUrl": "https://openalex.org/A0000000024"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "visual analytics"
+    ],
+    "name": "Author 07",
+    "profileUrl": "https://openalex.org/A0000000008"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "visual analytics"
+    ],
+    "name": "Author 25",
+    "profileUrl": "https://openalex.org/A0000000026"
+   }
+  ],
+  "citations": 0,
+  "contribution": "Synthetic contribution statement for example paper 6.",
+  "discoveredAt": "2026-10-13",
+  "doi": "10.1234/example.6",
+  "foundIn": [
+   "DBLP",
+   "SpringerLink"
+  ],
+  "fullTextRead": false,
+  "futureWork": [],
+  "keywords": [
+   "process mining",
+   "visual analytics",
+   "analysis tasks",
+   "visualization design"
+  ],
+  "limitationsAI": [
+   "Synthetic limitationsAI item 1.",
+   "Synthetic limitationsAI item 2.",
+   "Synthetic limitationsAI item 3."
+  ],
+  "limitationsStated": [],
+  "paperType": "Workshop paper",
+  "pdfUrl": "",
+  "pendingDetail": false,
+  "publishedDate": "2026-01",
+  "summary": "Synthetic summary of example paper 6, written for the test fixture.",
+  "themes": [
+   "Exploratory process mining"
+  ],
+  "title": "Example Paper 6: A Study of Exploratory process mining",
+  "updatedAt": "2026-10-13T12:00:00Z",
+  "url": "https://doi.org/10.1234/example.6",
+  "venueId": "exworkshop",
+  "venueKind": "workshop",
+  "venueName": "Example Workshop 2026",
+  "year": 2026,
+  "id": "p6"
+ },
+ {
+  "affinity": 95,
+  "affinityBreakdown": [
+   {
+    "score": 100,
+    "theme": "Exploratory process mining"
+   },
+   {
+    "score": 100,
+    "theme": "Provenance visualization"
+   },
+   {
+    "score": 80,
+    "theme": "Provenance features & tooling"
+   },
+   {
+    "score": 60,
+    "theme": "Provenance models"
+   },
+   {
+    "score": 50,
+    "theme": "User studies"
+   },
+   {
+    "score": 50,
+    "theme": "Annotations & reasoning"
+   }
+  ],
+  "affinityNote": "Affinity 95: synthetic fixture note.",
+  "authors": [
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "exploratory analysis"
+    ],
+    "name": "Author 27",
+    "profileUrl": "https://openalex.org/A0000000028"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "exploratory analysis"
+    ],
+    "name": "Author 29",
+    "profileUrl": "https://openalex.org/A0000000030"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process mining",
+     "exploratory analysis"
+    ],
+    "name": "Author 11",
+    "profileUrl": "https://openalex.org/A0000000012"
+   }
+  ],
+  "citations": 0,
+  "contribution": "Synthetic contribution statement for example paper 7.",
+  "discoveredAt": "2026-10-13",
+  "doi": "10.1234/example.7",
+  "foundIn": [
+   "SpringerLink"
+  ],
+  "fullTextRead": false,
+  "futureWork": [],
+  "keywords": [
+   "process mining",
+   "exploratory analysis",
+   "visual analytics",
+   "event log filtering",
+   "provenance"
+  ],
+  "limitationsAI": [
+   "Synthetic limitationsAI item 1.",
+   "Synthetic limitationsAI item 2.",
+   "Synthetic limitationsAI item 3.",
+   "Synthetic limitationsAI item 4."
+  ],
+  "limitationsStated": [],
+  "paperType": "Full research paper",
+  "pdfUrl": "",
+  "pendingDetail": false,
+  "publishedDate": "2026-06",
+  "summary": "Synthetic summary of example paper 7, written for the test fixture.",
+  "themes": [
+   "Exploratory process mining",
+   "Provenance visualization",
+   "Provenance features & tooling",
+   "Provenance models",
+   "User studies",
+   "Annotations & reasoning"
+  ],
+  "title": "Example Paper 7: A Study of Exploratory process mining",
+  "updatedAt": "2026-10-13T12:00:00Z",
+  "url": "https://doi.org/10.1234/example.7",
+  "venueId": "exconf",
+  "venueKind": "conference",
+  "venueName": "Example Conference 2026",
+  "year": 2026,
+  "id": "p7"
+ },
+ {
+  "affinity": 89,
+  "affinityBreakdown": [
+   {
+    "score": 100,
+    "theme": "Exploratory process mining"
+   },
+   {
+    "score": 80,
+    "theme": "User studies"
+   },
+   {
+    "score": 60,
+    "theme": "Annotations & reasoning"
+   },
+   {
+    "score": 20,
+    "theme": "Provenance features & tooling"
+   },
+   {
+    "score": 20,
+    "theme": "Provenance-backed reporting"
+   }
+  ],
+  "affinityNote": "Affinity 89: synthetic fixture note.",
+  "authors": [
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "exploratory process mining",
+     "ethogram"
+    ],
+    "name": "Author 31",
+    "profileUrl": "https://openalex.org/A0000000032"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "exploratory process mining",
+     "ethogram"
+    ],
+    "name": "Author 33",
+    "profileUrl": "https://openalex.org/A0000000034"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "exploratory process mining",
+     "ethogram"
+    ],
+    "name": "Author 35",
+    "profileUrl": "https://openalex.org/A0000000036"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "exploratory process mining",
+     "ethogram"
+    ],
+    "name": "Author 37",
+    "profileUrl": "https://openalex.org/A0000000038"
+   }
+  ],
+  "citations": 4,
+  "contribution": "Synthetic contribution statement for example paper 8.",
+  "discoveredAt": "2026-10-13",
+  "doi": "10.1234/example.8",
+  "foundIn": [
+   "DBLP",
+   "SpringerLink"
+  ],
+  "fullTextRead": true,
+  "futureWork": [
+   "Synthetic futureWork item 1.",
+   "Synthetic futureWork item 2.",
+   "Synthetic futureWork item 3.",
+   "Synthetic futureWork item 4."
+  ],
+  "keywords": [
+   "exploratory process mining",
+   "ethogram",
+   "analyst behavior",
+   "process of process mining",
+   "interviews"
+  ],
+  "limitationsAI": [
+   "Synthetic limitationsAI item 1.",
+   "Synthetic limitationsAI item 2.",
+   "Synthetic limitationsAI item 3."
+  ],
+  "limitationsStated": [
+   "Synthetic limitationsStated item 1.",
+   "Synthetic limitationsStated item 2.",
+   "Synthetic limitationsStated item 3."
+  ],
+  "paperType": "Journal article",
+  "pdfUrl": "https://example.org/papers/8.pdf",
+  "pendingDetail": false,
+  "publishedDate": "2025-08-15",
+  "summary": "Synthetic summary of example paper 8, written for the test fixture.",
+  "themes": [
+   "Exploratory process mining",
+   "User studies",
+   "Annotations & reasoning"
+  ],
+  "title": "Example Paper 8: A Study of Exploratory process mining",
+  "updatedAt": "2026-10-13T12:00:00Z",
+  "url": "https://doi.org/10.1234/example.8",
+  "venueId": "exjournal",
+  "venueKind": "journal",
+  "venueName": "Example Journal 2025",
+  "year": 2025,
+  "id": "p8"
+ },
+ {
+  "affinity": 88,
+  "affinityBreakdown": [
+   {
+    "score": 100,
+    "theme": "Exploratory process mining"
+   },
+   {
+    "score": 60,
+    "theme": "Provenance features & tooling"
+   },
+   {
+    "score": 60,
+    "theme": "Provenance visualization"
+   },
+   {
+    "score": 30,
+    "theme": "Annotations & reasoning"
+   },
+   {
+    "score": 20,
+    "theme": "Provenance models"
+   }
+  ],
+  "affinityNote": "Affinity 88: synthetic fixture note.",
+  "authors": [
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process exploration",
+     "visual analytics"
+    ],
+    "name": "Author 39",
+    "profileUrl": "https://openalex.org/A0000000040"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process exploration",
+     "visual analytics"
+    ],
+    "name": "Author 41",
+    "profileUrl": "https://openalex.org/A0000000042"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process exploration",
+     "visual analytics"
+    ],
+    "name": "Author 23",
+    "profileUrl": "https://openalex.org/A0000000024"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process exploration",
+     "visual analytics"
+    ],
+    "name": "Author 43",
+    "profileUrl": "https://openalex.org/A0000000044"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "process exploration",
+     "visual analytics"
+    ],
+    "name": "Author 11",
+    "profileUrl": "https://openalex.org/A0000000012"
+   }
+  ],
+  "citations": 0,
+  "contribution": "Synthetic contribution statement for example paper 9.",
+  "discoveredAt": "2026-10-13",
+  "doi": "10.1234/example.9",
+  "foundIn": [
+   "DBLP",
+   "SpringerLink"
+  ],
+  "fullTextRead": true,
+  "futureWork": [
+   "Synthetic futureWork item 1.",
+   "Synthetic futureWork item 2."
+  ],
+  "keywords": [
+   "process exploration",
+   "visual analytics",
+   "analytic provenance",
+   "feedforward",
+   "interaction intents",
+   "process mining tools"
+  ],
+  "limitationsAI": [
+   "Synthetic limitationsAI item 1.",
+   "Synthetic limitationsAI item 2.",
+   "Synthetic limitationsAI item 3."
+  ],
+  "limitationsStated": [
+   "Synthetic limitationsStated item 1.",
+   "Synthetic limitationsStated item 2.",
+   "Synthetic limitationsStated item 3."
+  ],
+  "paperType": "Journal article",
+  "pdfUrl": "https://example.org/papers/9.pdf",
+  "pendingDetail": false,
+  "publishedDate": "2026-08-06",
+  "summary": "Synthetic summary of example paper 9, written for the test fixture.",
+  "themes": [
+   "Exploratory process mining",
+   "Provenance features & tooling",
+   "Provenance visualization"
+  ],
+  "title": "Example Paper 9: A Study of Exploratory process mining",
+  "updatedAt": "2026-10-13T12:00:00Z",
+  "url": "https://doi.org/10.1234/example.9",
+  "venueId": "exjournal",
+  "venueKind": "journal",
+  "venueName": "Example Journal 2026",
+  "year": 2026,
+  "id": "p9"
+ },
+ {
+  "affinity": 85,
+  "affinityBreakdown": [
+   {
+    "score": 100,
+    "theme": "Exploratory process mining"
+   },
+   {
+    "score": 50,
+    "theme": "User studies"
+   },
+   {
+    "score": 50,
+    "theme": "Annotations & reasoning"
+   }
+  ],
+  "affinityNote": "Affinity 85: synthetic fixture note.",
+  "authors": [
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "exploratory process mining",
+     "ethogram"
+    ],
+    "name": "Author 31",
+    "profileUrl": "https://openalex.org/A0000000032"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "exploratory process mining",
+     "ethogram"
+    ],
+    "name": "Author 33",
+    "profileUrl": "https://openalex.org/A0000000034"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "exploratory process mining",
+     "ethogram"
+    ],
+    "name": "Author 35",
+    "profileUrl": "https://openalex.org/A0000000036"
+   },
+   {
+    "affiliation": "Example University",
+    "keywords": [
+     "exploratory process mining",
+     "ethogram"
+    ],
+    "name": "Author 37",
+    "profileUrl": "https://openalex.org/A0000000038"
+   }
+  ],
+  "citations": 2,
+  "contribution": "Synthetic contribution statement for example paper 10.",
+  "discoveredAt": "2026-10-13",
+  "doi": "10.1234/example.10",
+  "foundIn": [
+   "DBLP",
+   "SpringerLink"
+  ],
+  "fullTextRead": false,
+  "futureWork": [],
+  "keywords": [
+   "exploratory process mining",
+   "ethogram",
+   "analyst behavior",
+   "case studies"
+  ],
+  "limitationsAI": [
+   "Synthetic limitationsAI item 1.",
+   "Synthetic limitationsAI item 2.",
+   "Synthetic limitationsAI item 3."
+  ],
+  "limitationsStated": [],
+  "paperType": "Workshop paper",
+  "pdfUrl": "https://example.org/papers/10.pdf",
+  "pendingDetail": false,
+  "publishedDate": "2025-03",
+  "summary": "Synthetic summary of example paper 10, written for the test fixture.",
+  "themes": [
+   "Exploratory process mining",
+   "User studies",
+   "Annotations & reasoning"
+  ],
+  "title": "Example Paper 10: A Study of Exploratory process mining",
+  "updatedAt": "2026-10-13T12:00:00Z",
+  "url": "https://doi.org/10.1234/example.10",
+  "venueId": "exworkshop",
+  "venueKind": "workshop",
+  "venueName": "Example Workshop 2025",
+  "year": 2025,
+  "id": "p10"
+ }
+]

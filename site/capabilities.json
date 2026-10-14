@@ -1,0 +1,13 @@
+{
+  "_comment": "Runtime capabilities to declare when publishing dist/radar.html as a Claude artifact. db: shared store (only Editors write shared data; every viewer writes their own data/users/<id> subtree). user: who is viewing. sample: 'Propose topic with Claude'. mcp: 'Run now' starts the scheduled scan. downloads: data export.",
+  "db": {
+    "rules": [
+      {"path": "", "read": "view", "write": "admin"},
+      {"path": "data/users/{self}", "write": "interact"}
+    ]
+  },
+  "user": {},
+  "sample": {},
+  "mcp": {"servers": [{"server": "Claude Code Remote", "tools": ["fire_trigger"]}]},
+  "downloads": true
+}

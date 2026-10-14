@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/research-radar/radar.schema.json",
+  "title": "Research Radar data model",
+  "description": "Documents in the site's database. Collections: papers/<id>, conferences/<id>, journals/<id>; single documents: meta/topic, meta/config, meta/control, meta/run; private per viewer: data/users/<viewer id>/settings and data/users/<viewer id>/marks. The export file (format research-radar/v1) bundles the shared ones.",
+  "$defs": {
+    "date": {"type": "string", "pattern": "^\\d{4}(-\\d{2}(-\\d{2})?)?$"},
+    "person": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {"type": "string"},
+        "affiliation": {"type": "string"},
+        "relatedToTopic": {"type": "boolean"},
+        "relationNote": {"type": "string"}
+      }
+    },
+    "author": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {"type": "string"},
+        "affiliation": {"type": "string"},
+        "keywords": {"type": "array", "items": {"type": "string"}},
+        "profileUrl": {"type": "string"},
+        "orcid": {"type": "string"},
+        "self": {"type": "boolean", "description": "Marks the site owner (also matched through meta/topic.selfName)."}
+      }
+    },
+    "statedList": {
+      "description": "What the authors state. An array (possibly empty) only when the full text was read; null when it could not be checked.",
+      "oneOf": [{"type": "array", "items": {"type": "string"}}, {"type": "null"}]
+    },
+    "paper": {
+      "type": "object",
+      "required": ["title", "foundIn", "discoveredAt"],
+      "properties": {
+        "title": {"type": "string"},
+        "authors": {"type": "array", "items": {"$ref": "#/$defs/author"}},
+        "year": {"type": "integer"},
+        "publishedDate": {"$ref": "#/$defs/date"},
+        "venueId": {"type": "string"},
+        "venueName": {"type": "string"},
+        "venueKind": {"enum": ["conference", "workshop", "journal", "preprint"]},
+        "paperType": {"type": "string"},
+        "doi": {"type": ["string", "null"]},
+        "url": {"type": "string"},
+        "pdfUrl": {"type": "string"},
+        "openAlexId": {"type": "string"},
+        "openAccess": {"type": "boolean"},
+        "keywords": {"type": "array", "items": {"type": "string"}},
+        "affinity": {"type": "number", "minimum": 0, "maximum": 100},
+        "affinityBreakdown": {"type": "array", "items": {"type": "object", "properties": {"theme": {"type": "string"}, "score": {"type": "number"}}}},
+        "affinityNote": {"type": "string"},
+        "themes": {"type": "array", "items": {"type": "string"}},
+        "scoredTopicRevision": {"type": "integer", "description": "meta/topic.revision the affinity was computed against; older means 'Rescore due'."},
+        "abstract": {"type": "string"},
+        "summary": {"type": "string"},
+        "contribution": {"type": "string"},
+        "futureWork": {"$ref": "#/$defs/statedList"},
+        "limitationsStated": {"$ref": "#/$defs/statedList"},
+        "limitationsAI": {"type": "array", "items": {"type": "string"}},
+        "fullTextRead": {"type": "boolean"},
+        "fullTextSource": {"type": "string", "examples": ["full text (open access PDF)", "abstract only (OpenAlex)", "metadata only"]},
+        "fetchNotes": {"type": "string", "description": "Why the record is incomplete, e.g. a paywall."},
+        "citations": {"type": "integer"},
+        "foundIn": {"type": "array", "items": {"enum": ["OpenAlex", "Google Scholar", "Scopus", "ScienceDirect", "IEEE Xplore", "DBLP", "ACM DL", "SpringerLink", "arXiv", "Web search"]}},
+        "discoveredAt": {"$ref": "#/$defs/date"},
+        "updatedAt": {"type": "string"},
+        "pendingDetail": {"type": "boolean"},
+        "ownPaper": {"type": "boolean"}
+      }
+    },
+    "edition": {
+      "type": "object",
+      "properties": {"year": {"type": ["integer", "string"]}, "city": {"type": "string"}, "country": {"type": "string"}, "startDate": {"$ref": "#/$defs/date"}, "endDate": {"$ref": "#/$defs/date"}, "url": {"type": "string"}}
+    },
+    "conference": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {"type": "string"}, "acronym": {"type": "string"},
+        "coreRank": {"enum": ["A*", "A", "B", "C", "Unranked"]}, "coreSource": {"type": "string"},
+        "topicScore": {"type": "number"}, "topicNote": {"type": "string"},
+        "emerging": {"type": "boolean"}, "emergingReason": {"type": "string"},
+        "scope": {"type": "string"}, "url": {"type": "string"}, "dblpUrl": {"type": "string"}, "publisher": {"type": "string"}, "acceptanceRate": {"type": "string"},
+        "relevantTracks": {"type": "array", "items": {"type": "string"}},
+        "nextEdition": {"$ref": "#/$defs/edition"}, "followingEdition": {"$ref": "#/$defs/edition"},
+        "deadlines": {"type": "array", "items": {"type": "object", "properties": {"track": {"type": "string"}, "type": {"type": "string"}, "abstractDue": {"$ref": "#/$defs/date"}, "paperDue": {"$ref": "#/$defs/date"}, "notification": {"$ref": "#/$defs/date"}, "cameraReady": {"$ref": "#/$defs/date"}, "pageLimit": {"type": "string"}, "url": {"type": "string"}}}},
+        "deadlineNote": {"type": "string"},
+        "steeringCommittee": {"type": "array", "items": {"$ref": "#/$defs/person"}},
+        "generalChairs": {"type": "array", "items": {"$ref": "#/$defs/person"}},
+        "pcChairs": {"type": "array", "items": {"$ref": "#/$defs/person"}},
+        "seniorPC": {"type": "array", "items": {"$ref": "#/$defs/person"}},
+        "programCommittee": {"type": "array", "items": {"$ref": "#/$defs/person"}},
+        "sources": {"type": "array"}, "fetchNotes": {"type": "string"}, "updatedAt": {"type": "string"}
+      }
+    },
+    "journal": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {"type": "string"}, "abbrev": {"type": "string"}, "publisher": {"type": "string"}, "issn": {"type": "string"}, "url": {"type": "string"}, "openAlexId": {"type": "string"},
+        "impactFactor": {"type": ["number", "null"], "description": "Latest JCR impact factor only."}, "ifYear": {"type": ["integer", "string"]}, "impactFactor5y": {"type": ["number", "null"]},
+        "citeScore": {}, "sjr": {}, "citedness2y": {"type": "number", "description": "OpenAlex 2-year mean citedness."}, "quartile": {"type": "string"}, "hIndex": {}, "reviewTime": {"type": "string"}, "acceptanceRate": {"type": "string"}, "openAccess": {},
+        "topicScore": {"type": "number"}, "topicNote": {"type": "string"}, "emerging": {"type": "boolean"}, "emergingReason": {"type": "string"}, "scope": {"type": "string"},
+        "specialIssues": {"type": "array", "items": {"type": "object", "properties": {"title": {"type": "string"}, "deadline": {"$ref": "#/$defs/date"}, "url": {"type": "string"}, "relevant": {"type": "boolean"}}}},
+        "editorsInChief": {"type": "array", "items": {"$ref": "#/$defs/person"}},
+        "associateEditors": {"type": "array", "items": {"$ref": "#/$defs/person"}},
+        "editorialBoard": {"type": "array", "items": {"$ref": "#/$defs/person"}},
+        "sources": {"type": "array"}, "fetchNotes": {"type": "string"}, "updatedAt": {"type": "string"}
+      }
+    },
+    "topic": {
+      "type": "object",
+      "required": ["themes"],
+      "properties": {
+        "description": {"type": "string"},
+        "themes": {"type": "array", "items": {"type": "object", "required": ["name"], "properties": {"name": {"type": "string"}, "weight": {"type": "number", "minimum": 0, "maximum": 1}, "keywords": {"type": "array", "items": {"type": "string"}}}}},
+        "exclude": {"type": "array", "items": {"type": "string"}},
+        "revision": {"type": "integer", "minimum": 1},
+        "seeds": {"type": "array", "items": {"type": "object", "properties": {"title": {"type": "string"}, "doi": {"type": ["string", "null"]}}}},
+        "selfName": {"type": "string"},
+        "updatedAt": {"type": "string"}, "updatedBy": {"type": "string"}
+      }
+    },
+    "config": {
+      "type": "object",
+      "properties": {
+        "siteName": {"type": "string"}, "tagline": {"type": "string"},
+        "triggerId": {"type": "string", "description": "Scheduled task the site's Run now button starts."},
+        "scheduleText": {"type": "string"},
+        "lookbackYears": {"type": "integer"}, "minAffinity": {"type": "integer"},
+        "sources": {"type": "object", "additionalProperties": {"type": "boolean"}, "propertyNames": {"enum": ["openalex", "dblp", "sciencedirect", "ieee", "springer", "acm", "arxiv", "scholar", "scopus"]}}
+      }
+    },
+    "control": {
+      "type": "object",
+      "properties": {
+        "status": {"enum": ["queued", "running", "done"]},
+        "mode": {"enum": ["incremental", "rescore", "full"]},
+        "lookbackYears": {"type": "integer"}, "rescore": {"type": "boolean"}, "deriveTopicFromSeeds": {"type": "boolean"},
+        "retryPaperIds": {"type": "array", "items": {"type": "string"}},
+        "requestedAt": {"type": "string"}, "requestedBy": {"type": "string"}, "firedAt": {"type": ["string", "null"]}, "startedAt": {"type": "string"}, "handledAt": {"type": "string"},
+        "lastResult": {"type": "string"}, "lastError": {"type": ["string", "null"]}
+      }
+    },
+    "settings": {
+      "type": "object",
+      "description": "Private to one viewer (data/users/<id>/settings). Never exported or committed.",
+      "properties": {"openalexKey": {"type": "string"}, "openalexEmail": {"type": "string"}}
+    }
+  },
+  "type": "object",
+  "description": "The export file written by the site's Download all data button.",
+  "properties": {
+    "format": {"const": "research-radar/v1"},
+    "exportedAt": {"type": "string"},
+    "topic": {"$ref": "#/$defs/topic"},
+    "config": {"$ref": "#/$defs/config"},
+    "control": {"$ref": "#/$defs/control"},
+    "run": {"type": "object"},
+    "papers": {"type": "array", "items": {"$ref": "#/$defs/paper"}},
+    "conferences": {"type": "array", "items": {"$ref": "#/$defs/conference"}},
+    "journals": {"type": "array", "items": {"$ref": "#/$defs/journal"}}
+  }
+}

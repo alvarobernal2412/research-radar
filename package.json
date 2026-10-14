@@ -1,0 +1,13 @@
+{
+  "name": "research-radar",
+  "private": true,
+  "description": "Dev tooling for the smoke test only; the site itself has no build-time JS dependencies.",
+  "scripts": {
+    "build": "python site/build.py --check",
+    "smoke": "node tests/smoke/smoke.js"
+  },
+  "devDependencies": {
+    "d3": "7.8.5",
+    "playwright-core": "1.47.2"
+  }
+}

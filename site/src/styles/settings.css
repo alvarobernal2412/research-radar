@@ -1,0 +1,34 @@
+/* topic & scans page, completeness flags */
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.danger{color:var(--crit);border-color:var(--crit)}
+.btn.danger:hover{background:var(--crit-soft)}
+.btn.primary:disabled{background:var(--sunk);color:var(--muted);border-color:var(--line)}
+.tpmsg{font-size:.85rem;color:var(--muted)}
+.tpmsg.ok{color:var(--accent)} .tpmsg.err{color:var(--crit)}
+.notice.gap{border-left:3px solid var(--amber)}
+.notice.changed{border-left:3px solid var(--accent);background:var(--accent-soft)}
+p.unknown{margin:0;font-size:.88rem;color:var(--amber)}
+.counts{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.88rem;color:var(--muted)}
+.counts b{color:var(--ink);font-weight:500}
+.maintgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;align-items:start}
+.maintgrid .panel h3{font-size:1.05rem}
+.radios{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:.88rem;cursor:pointer}
+.chk input{accent-color:var(--accent);margin-top:3px;flex:none}
+.confirm{border:1px solid var(--crit);background:var(--crit-soft);border-radius:var(--r);padding:12px;display:flex;flex-direction:column;gap:10px;font-size:.88rem}
+.srclist{display:flex;flex-direction:column;gap:10px}
+.keyrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+input[type=password]{font:inherit;font-size:.9rem;padding:7px 9px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);width:100%;min-width:0;font-family:var(--f-mono)}
+.dropzone{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:22px;border:2px dashed var(--line);border-radius:var(--r);background:var(--bg);text-align:center;cursor:pointer;color:var(--muted);font-size:.86rem}
+.dropzone b{color:var(--ink);font-size:.95rem}
+.dropzone:hover,.dropzone.over{border-color:var(--accent);background:var(--accent-soft)}
+.dropzone input{position:absolute;width:1px;height:1px;opacity:0}
+.dropzone:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.doclist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r)}
+.doclist li{display:flex;gap:10px;align-items:center;padding:7px 10px;font-size:.86rem}
+.doclist li+li{border-top:1px solid var(--line)}
+.doclist .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seeds summary{cursor:pointer;font-size:.86rem;color:var(--muted)}
+.seeds ul{margin:8px 0 0;padding-left:1.2em;font-size:.86rem;display:flex;flex-direction:column;gap:4px}

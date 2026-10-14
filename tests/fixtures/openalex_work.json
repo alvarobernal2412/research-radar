@@ -1,0 +1,21 @@
+{
+  "id": "https://openalex.org/W0000000001",
+  "doi": "https://doi.org/10.1234/example.1",
+  "display_name": "Example Paper: A Conceptual Model for Exploratory Process Mining",
+  "publication_year": 2026,
+  "publication_date": "2026-10-05",
+  "type": "book-chapter",
+  "primary_location": {
+    "landing_page_url": "https://doi.org/10.1234/example.1",
+    "source": {"id": "https://openalex.org/S0000000001", "display_name": "Lecture notes in computer science", "type": "book series"}
+  },
+  "best_oa_location": null,
+  "open_access": {"is_oa": false},
+  "authorships": [
+    {"author": {"id": "https://openalex.org/A0000000001", "display_name": "Alex Example"}, "institutions": [{"display_name": "Example University"}]},
+    {"author": {"id": "https://openalex.org/A0000000002", "display_name": "Author 02"}, "institutions": [{"display_name": "Example University"}]}
+  ],
+  "cited_by_count": 0,
+  "abstract_inverted_index": {"Process": [0], "mining": [1], "analyses": [2], "are": [3], "exploratory": [4], "and": [5], "non-linear.": [6]},
+  "keywords": [{"display_name": "Analytic provenance"}, {"display_name": "Exploratory process mining"}]
+}

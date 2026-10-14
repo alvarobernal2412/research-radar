@@ -1,0 +1,20 @@
+# build output (rebuild with: python site/build.py)
+dist/
+
+# local tooling
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# data exports can contain abstracts you may not want public; commit them deliberately
+data/*.json
+!data/.gitkeep
+
+# never commit secrets
+*.key
+.env
+
+# your deployment config (artifact URL, task id); copy from site.example.json
+config/site.json

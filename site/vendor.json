@@ -1,0 +1,10 @@
+{
+  "_comment": "Libraries loaded from the artifact host's CDN allowlist. Pin exact versions. 'eager' become <script> tags; 'lazy' are loaded by the page only when needed.",
+  "eager": [
+    {"name": "d3", "version": "7.8.5", "url": "https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"}
+  ],
+  "lazy": [
+    {"name": "pdf.js", "version": "3.11.174", "url": "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"},
+    {"name": "pdf.js worker", "version": "3.11.174", "url": "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"}
+  ]
+}
