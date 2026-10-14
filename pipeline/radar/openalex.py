@@ -10,6 +10,7 @@ Command line:
 
     python -m radar.openalex search "analytic provenance process mining" --since 2023-10-13 --max 50
     python -m radar.openalex doi 10.1234/example.1
+    python -m radar.openalex reconstruct < paper.json    # {"paper": ..., "changed": [...]}
 
 Both print paper records in the site's schema (one JSON object per line).
 """
@@ -237,9 +238,66 @@ def to_paper(work: dict, found_in: str = "OpenAlex", discovered_at: str | None =
     return rec
 
 
+def same_paper(paper: dict, work: dict) -> bool:
+    """True when an OpenAlex work is the stored paper: same DOI, else same
+    normalised title and a publication year within one."""
+    from .dedup import fold
+
+    a, b = normalize_doi(paper.get("doi")), normalize_doi(work.get("doi"))
+    if a and b:
+        return a == b
+    ta, tb = fold(paper.get("title")), fold(work.get("display_name"))
+    if not ta or ta != tb:
+        return False
+    ya, yb = paper.get("year"), work.get("publication_year")
+    return ya is None or yb is None or abs(int(ya) - int(yb)) <= 1
+
+
+def reconstruct(paper: dict, work: dict) -> tuple[dict, list[str]]:
+    """Fill what is missing in a partially analysed paper from its OpenAlex work.
+
+    Returns ``(record, changed_fields)``; the input is not modified. Only
+    metadata is touched: abstract, keywords, citations, open-access flag and
+    link, OpenAlex id, and the provenance note. It never sets ``fullTextRead``
+    and never writes ``limitationsStated``, ``futureWork``, ``summary`` or
+    ``contribution``: OpenAlex has no full text, so those stay unknown until
+    the paper itself is read. A work that is not the same paper changes nothing.
+    """
+    if not same_paper(paper, work):
+        return dict(paper), []
+    rec = dict(paper)
+    changed: list[str] = []
+
+    def put(key: str, value: Any) -> None:
+        if value not in (None, "", []) and rec.get(key) != value:
+            rec[key] = value
+            changed.append(key)
+
+    new_abstract = reconstruct_abstract(work.get("abstract_inverted_index"))
+    if new_abstract and not rec.get("abstract"):
+        put("abstract", new_abstract)
+        if rec.get("fullTextRead") is not True:
+            put("fullTextSource", "abstract only (OpenAlex)")
+            put("fetchNotes", "Abstract reconstructed from OpenAlex; full text not read.")
+    if not rec.get("keywords"):
+        put("keywords", [k["display_name"] for k in work.get("keywords") or [] if k.get("display_name")][:8])
+    if isinstance(work.get("cited_by_count"), int):
+        put("citations", work["cited_by_count"])
+    if not rec.get("openAccess") and (work.get("open_access") or {}).get("is_oa"):
+        put("openAccess", True)
+    if not rec.get("pdfUrl"):
+        put("pdfUrl", (work.get("best_oa_location") or {}).get("pdf_url"))
+    if not rec.get("openAlexId"):
+        put("openAlexId", work.get("id"))
+    return rec, changed
+
+
 def _main(argv: list[str] | None = None) -> int:
     from .dedup import paper_id
 
+    # Records hold non-ASCII text; Windows would otherwise pipe cp1252.
+    sys.stdin.reconfigure(encoding="utf-8")
+    sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser(prog="python -m radar.openalex", description="Fetch paper records from OpenAlex.")
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("search", help="search titles and abstracts")
@@ -248,9 +306,20 @@ def _main(argv: list[str] | None = None) -> int:
     s.add_argument("--max", type=int, default=50)
     d = sub.add_parser("doi", help="look up one DOI")
     d.add_argument("doi")
+    r = sub.add_parser("reconstruct", help="fill a stored paper's gaps from OpenAlex (paper JSON on stdin)")
     args = ap.parse_args(argv)
     oa = OpenAlex()
     try:
+        if args.cmd == "reconstruct":
+            paper = json.load(sys.stdin)
+            doi = normalize_doi(paper.get("doi"))
+            if doi:
+                work = oa.work_by_doi(doi)
+            else:
+                work = next(iter(oa.search_works(paper.get("title") or "", max_results=1)), {})
+            rec, changed = reconstruct(paper, work)
+            print(json.dumps({"paper": rec, "changed": changed}, ensure_ascii=False))
+            return 0
         works = oa.search_works(args.query, since=args.since, max_results=args.max) if args.cmd == "search" else [oa.work_by_doi(args.doi)]
         for w in works:
             rec = to_paper(w)

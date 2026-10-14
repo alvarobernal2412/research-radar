@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from radar.dedup import dedupe, fold, paper_id
-from radar.openalex import normalize_doi, reconstruct_abstract, redact, to_paper
+from radar.openalex import normalize_doi, reconstruct, reconstruct_abstract, redact, to_paper
 from radar.scoring import affinity, completeness, normalize_stated_fields
 
 FIX = Path(__file__).parent / "fixtures"
@@ -95,3 +95,69 @@ def test_unread_papers_get_unknown_stated_fields():
 def test_sample_fixture_is_valid_shape():
     papers = json.loads((FIX / "papers.sample.json").read_text(encoding="utf-8"))
     assert papers and all("title" in p and "foundIn" in p for p in papers)
+
+
+def _work():
+    return json.loads((FIX / "openalex_work.json").read_text(encoding="utf-8"))
+
+
+def _minimal_paper():
+    return {
+        "title": "Example Paper: A Conceptual Model for Exploratory Process Mining",
+        "doi": "10.1234/example.1", "year": 2026,
+        "authors": [{"name": "Alex Example"}],
+        "abstract": "", "keywords": [], "fullTextRead": False,
+        "fullTextSource": "metadata only", "fetchNotes": "Publisher paywall; no open-access copy found",
+        "limitationsStated": None, "futureWork": None, "pendingDetail": True,
+    }
+
+
+def test_reconstruct_fills_missing_abstract_and_keywords_from_openalex():
+    before = _minimal_paper()
+    rec, changed = reconstruct(before, _work())
+    assert rec["abstract"].startswith("Process mining analyses are exploratory")
+    assert rec["keywords"] == ["Analytic provenance", "Exploratory process mining"]
+    assert rec["fullTextSource"] == "abstract only (OpenAlex)"
+    assert {"abstract", "keywords", "fullTextSource"} <= set(changed)
+    assert before["abstract"] == ""  # the input is not mutated
+    assert completeness({**rec, "pendingDetail": False})["level"] == "partial"
+
+
+def test_reconstruct_never_claims_full_text_or_author_stated_fields():
+    rec, _ = reconstruct(_minimal_paper(), _work())
+    assert rec["fullTextRead"] is False
+    assert rec["limitationsStated"] is None and rec["futureWork"] is None
+    assert rec["pendingDetail"] is True  # the scan still has to analyse it
+    assert "summary" not in rec and "contribution" not in rec
+
+
+def test_reconstruct_keeps_what_the_scan_already_read():
+    p = {**_minimal_paper(), "abstract": "Real abstract.", "fullTextRead": True,
+         "fullTextSource": "full text (open access PDF)", "keywords": ["kept"], "citations": 1}
+    rec, changed = reconstruct(p, {**_work(), "cited_by_count": 7})
+    assert rec["abstract"] == "Real abstract." and rec["keywords"] == ["kept"]
+    assert rec["fullTextRead"] is True and rec["fullTextSource"] == "full text (open access PDF)"
+    assert rec["citations"] == 7 and "citations" in changed
+    assert not {"abstract", "keywords", "fullTextSource", "fetchNotes"} & set(changed)
+
+
+def test_reconstruct_takes_open_access_link_when_missing():
+    work = {**_work(), "open_access": {"is_oa": True},
+            "best_oa_location": {"pdf_url": "https://example.org/paper.pdf"}}
+    rec, changed = reconstruct(_minimal_paper(), work)
+    assert rec["pdfUrl"] == "https://example.org/paper.pdf" and rec["openAccess"] is True
+    assert "pdfUrl" in changed
+
+
+def test_reconstruct_ignores_a_work_that_is_not_the_same_paper():
+    other = {**_work(), "doi": "https://doi.org/10.9999/other", "display_name": "Something else entirely"}
+    before = _minimal_paper()
+    rec, changed = reconstruct(before, other)
+    assert rec == before and changed == []
+
+
+def test_reconstruct_matches_by_title_and_year_when_the_doi_is_missing():
+    p = {**_minimal_paper(), "doi": None}
+    rec, changed = reconstruct(p, _work())
+    assert changed and rec["abstract"]
+

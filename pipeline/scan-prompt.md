@@ -20,7 +20,7 @@ If `meta/control.status` is `"queued"`, first set it to `"running"` with `starte
   - `"rescore"`: rescore every stored paper against the current topic (step 4), then search as in incremental.
   - `"full"`: search the whole window of `lookbackYears` (from the control document, else from config), then also rescore.
 - `deriveTopicFromSeeds: true`: look up every `meta/topic.seeds[].doi` in OpenAlex, read the title and abstract (and the full text when open access), and derive a new profile. Use this format: a description of 2-4 sentences; 5-9 themes, each with a weight (1.0 for core, 0.5-0.9 for adjacent) and 5-10 keywords written as they appear in titles and abstracts; 0-6 exclude terms. Keep `selfName` and `seeds` and fill in seed titles. Set `revision` to the old revision + 1 and `updatedBy` to `"scan (from seed papers)"`, write `meta/topic`, then rescore all stored papers.
-- `retryPaperIds`: before searching, try again to get the full text of these papers (step 5) and update them.
+- `retryPaperIds`: before searching, try again to get the full text of these papers (step 5, starting with the OpenAlex reconstruction when that source is on) and update them.
 If the status is `"done"` or the document is missing, run a normal incremental scan.
 
 **Search window.** For `"full"`, or when `meta/run.lastRunAt` is missing (first run), use today minus `lookbackYears`. Otherwise use `lastRunAt` minus 14 days, to catch late indexing.
@@ -52,6 +52,15 @@ If the status is `"done"` or the document is missing, run a normal incremental s
 - **Rescoring** (mode rescore or full, or a new topic revision): recompute these fields for every stored paper from its stored title, abstract, summary and keywords, and set `scoredTopicRevision`. Never delete papers during a scan; the owner removes papers from the site.
 
 ## 5. Analyse papers truthfully
+**OpenAlex reconstruction (only when the OpenAlex source is on).** For every paper you are about to analyse or retry whose `fullTextRead` is not true, first try to fill its gaps from OpenAlex, before browsing anywhere:
+1. Fetch `https://api.openalex.org/works/https://doi.org/<doi>` (with the key and mailto as in step 2). With no DOI, search by title and take the best hit.
+2. Accept it only if it is the same paper: the same DOI, or else the same normalised title and a publication year within one. Otherwise skip it and change nothing.
+3. Fill only what is missing: `abstract` (rebuild it from `abstract_inverted_index`, words ordered by position), `keywords` (up to 8), `openAccess`, `pdfUrl` (from `best_oa_location.pdf_url`) and `openAlexId`. Always refresh `citations`.
+4. If you filled the abstract, set `fullTextSource` to `"abstract only (OpenAlex)"` and `fetchNotes` to `"Abstract reconstructed from OpenAlex; full text not read."`
+5. Never set `fullTextRead`, `limitationsStated` or `futureWork` from OpenAlex, and never write a summary from metadata alone. OpenAlex has no full text, so those stay unknown until the paper itself is read. Keep `pendingDetail` true until you have written the summary from the abstract.
+6. Then continue below: a stored open-access PDF link is the first thing to try. If OpenAlex is off, skip this block; behaviour is unchanged.
+(The reference implementation is `reconstruct()` in `pipeline/radar/openalex.py`.)
+
 Try to read the full text, in this order: the open-access PDF (`best_oa_location.pdf_url`), arXiv, then the publisher page in Chrome (the owner may have institutional access). Then set these fields:
 - `fullTextRead`: true only if you read the body of the paper (method, results or discussion), not just the abstract.
 - `fullTextSource`: `"full text (open access PDF)"`, `"full text (publisher page)"`, `"full text (arXiv)"`, `"abstract only (OpenAlex)"`, `"abstract only (publisher page)"` or `"metadata only"`.
