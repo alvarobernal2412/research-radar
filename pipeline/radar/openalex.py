@@ -3,7 +3,8 @@
 OpenAlex (https://openalex.org) indexes most scholarly works with open
 metadata and abstracts, so it is the first source the scan uses: it avoids
 scraping sites that block automated access. An API key raises the rate limits;
-pass it as ``api_key`` or set OPENALEX_API_KEY. Never commit a key.
+pass it as ``api_key``, set OPENALEX_API_KEY, or put it in the repo's
+git-ignored ``.env`` file (see ``.env.example``). Never commit a key.
 
 Command line:
 
@@ -22,9 +23,28 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from pathlib import Path
 from typing import Any, Iterator
 
 BASE = "https://api.openalex.org"
+
+
+def _load_dotenv() -> None:
+    """Fill unset OPENALEX_* variables from the repo-root .env, if present."""
+    env = Path(__file__).resolve().parents[2] / ".env"
+    if not env.is_file():
+        return
+    for line in env.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        k, v = k.strip(), v.strip().strip("\"'")
+        if k.startswith("OPENALEX_") and v:
+            os.environ.setdefault(k, v)
+
+
+_load_dotenv()
 WORK_FIELDS = (
     "id,doi,display_name,publication_year,publication_date,type,type_crossref,"
     "primary_location,best_oa_location,open_access,authorships,cited_by_count,"
