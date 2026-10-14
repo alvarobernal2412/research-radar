@@ -47,7 +47,7 @@ function mockRuntime(seed) {
       doc: (id) => doc(c + "/" + id) };
     return q;
   };
-  window.__writes = []; window.__fired = []; window.__saved = [];
+  window.__writes = []; window.__fired = []; window.__saved = []; window.__savedData = [];
   const sample = async () => ({ text: "", truncated: false });
   sample.json = async (prompt) => { window.__prompt = prompt; return {
     description: "Test topic derived from seed papers.",
@@ -58,7 +58,7 @@ function mockRuntime(seed) {
     user: { canEdit: async () => true, id: async () => "u_test", isOwner: () => true },
     sample,
     mcp: { callTool: async (s, t, i) => { window.__fired.push([s, t, i]); return { content: [], payload: {} }; } },
-    downloads: { save: async (r) => { window.__saved.push(r.filename); return { status: "saved" }; } },
+    downloads: { save: async (r) => { window.__saved.push(r.filename); window.__savedData.push(r.data); return { status: "saved" }; } },
   };
   window.claude = { use: async (n) => caps[n] || null };
 }
@@ -87,6 +87,33 @@ function mockRuntime(seed) {
   check("brand comes from meta/config", (await pg.textContent(".brand b")) === "Test Radar");
   const rc = await pg.textContent("#rescount");
   check("contributions list renders", /of \d+ papers/.test(rc), rc);
+
+  // BibTeX selection: per-row checkbox, select/deselect all act on the filtered list.
+  const rows = await pg.$$("article.prow input[data-sel]");
+  check("every paper row has a selection checkbox", rows.length === papers.length, `${rows.length}/${papers.length}`);
+  check("export is disabled with nothing selected", await pg.isDisabled('[data-selact="export"]'));
+  await pg.click('[data-selact="all"]');
+  check("select all selects every shown paper", (await pg.textContent('[data-selact="export"]')).includes(`(${papers.length})`));
+  await pg.click('[data-selact="none"]');
+  check("deselect all clears them", (await pg.textContent('[data-selact="export"]')).includes("(0)"));
+  await pg.evaluate(() => { const r = document.getElementById("flt-aff"); r.value = "90"; r.dispatchEvent(new Event("input", { bubbles: true })); });
+  await pg.waitForTimeout(150);
+  const high = papers.filter((p) => (p.affinity || 0) >= 90).length;
+  await pg.click('[data-selact="all"]');
+  check("select all respects the active filters", (await pg.textContent('[data-selact="export"]')).includes(`(${high})`) && high < papers.length, `${high} of ${papers.length}`);
+  await pg.evaluate(() => { const r = document.getElementById("flt-aff"); r.value = "0"; r.dispatchEvent(new Event("input", { bubbles: true })); });
+  await pg.waitForTimeout(150);
+  await pg.click('[data-selact="export"]');
+  await pg.waitForTimeout(200);
+  const bib = await pg.evaluate(() => ({ f: window.__saved.filter((x) => x.endsWith(".bib")), d: window.__savedData.filter((x) => /^% Exported/.test(x)) }));
+  check("BibTeX file is downloaded", bib.f.length === 1 && bib.d.length === 1, JSON.stringify(bib.f));
+  const entries = (bib.d[0] || "").match(/^@\w+\{/gm) || [];
+  check("BibTeX has one entry per selected paper", entries.length === high, `${entries.length}/${high}`);
+  check("BibTeX keys are unique", new Set((bib.d[0] || "").match(/^@\w+\{([^,]+),/gm)).size === entries.length);
+  check("BibTeX entries have title and author", /title = \{\{/.test(bib.d[0] || "") && /author = \{/.test(bib.d[0] || ""));
+  await pg.click('[data-selact="none"]');
+  await pg.click('[data-selact="all"]');
+  await pg.click('[data-selact="none"]');
   await pg.selectOption("#flt-comp", "incomplete");
   await pg.waitForTimeout(200);
   const inc = await pg.$$eval(".prow", (r) => r.length);
@@ -144,7 +171,7 @@ function mockRuntime(seed) {
   check("API key is masked after saving", (await pg.textContent("#tp-sources")).includes("••••••3456"));
   await pg.click('[data-tp="export"]');
   await pg.waitForTimeout(200);
-  check("export offers a JSON download", (await pg.evaluate(() => window.__saved))[0]?.endsWith(".json"));
+  check("export offers a JSON download", (await pg.evaluate(() => window.__saved)).some((f) => f.endsWith(".json")));
   await shot("topic-after");
 
   await pg.goto("file://" + page + "#network");

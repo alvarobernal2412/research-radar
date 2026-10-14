@@ -20,6 +20,7 @@ function renderContributionsShell(){
     <div class="toggles wide"><label><input type="checkbox" id="flt-new"${F.onlyNew?" checked":""}> New this week</label><label><input type="checkbox" id="flt-star"${F.onlyStar?" checked":""}> Starred only</label><label><input type="checkbox" id="flt-read"${F.hideRead?" checked":""}> Hide read</label><button type="button" class="btn" id="flt-reset" style="margin-left:auto">Clear filters</button></div>
   </form>
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span class="rescount" id="rescount"></span>${S.uid?"":`<span class="muted" style="font-size:.8rem">Sign in to Claude to star papers and mark them read.</span>`}</div>
+  <div class="selbar" id="selbar"></div>
   <div id="results"></div>`;
   const on=(id,ev,fn)=>document.getElementById(id).addEventListener(ev,fn);
   let qT=0;on("flt-q","input",e=>{clearTimeout(qT);qT=setTimeout(()=>{F.q=e.target.value;commit()},150)});
@@ -38,8 +39,8 @@ function updateContribResults(){
   setSelect("flt-venue",distinct(p=>p.venueName),F.venue,"All venues");
   setSelect("flt-theme",distinct(p=>p.themes),F.theme,"All themes");
   setSelect("flt-db",distinct(p=>p.foundIn),F.db,"Any database");
-  if(!S.loaded.p){res.innerHTML=loadingBlock();document.getElementById("rescount").textContent="";return}
-  if(!S.papers.length){res.innerHTML=emptyBlock("No papers yet",`The first scan looks back ${num(cfg().lookbackYears)||3} years; after that, each scan adds what's new. Papers appear here with their affinity to your topic.`);document.getElementById("rescount").textContent="";return}
+  if(!S.loaded.p){res.innerHTML=loadingBlock();document.getElementById("rescount").textContent="";S.shown=[];updateSelBar();return}
+  if(!S.papers.length){S.shown=[];updateSelBar();res.innerHTML=emptyBlock("No papers yet",`The first scan looks back ${num(cfg().lookbackYears)||3} years; after that, each scan adds what's new. Papers appear here with their affinity to your topic.`);document.getElementById("rescount").textContent="";return}
   const q=F.q.trim().toLowerCase();const y1=parseInt(F.yearFrom,10),y2=parseInt(F.yearTo,10);
   let L=S.papers.filter(p=>{
     if((num(p.affinity)||0)<F.minAff)return false;
@@ -62,6 +63,7 @@ function updateContribResults(){
   const sorts={affinity:(a,b)=>(num(b.affinity)||0)-(num(a.affinity)||0),newest:(a,b)=>pd(b).localeCompare(pd(a)),oldest:(a,b)=>pd(a).localeCompare(pd(b)),discovered:(a,b)=>String(b.discoveredAt||"").localeCompare(String(a.discoveredAt||"")),citations:(a,b)=>(num(b.citations)||0)-(num(a.citations)||0),venue:(a,b)=>venueRankVal(b)-venueRankVal(a),title:(a,b)=>String(a.title).localeCompare(String(b.title))};
   L.sort((a,b)=>(sorts[F.sort]||sorts.affinity)(a,b)||(num(b.affinity)||0)-(num(a.affinity)||0));
   const inc=S.papers.filter(p=>paperCompleteness(p).level!=="complete").length;
+  S.shown=L.map(p=>p.id);updateSelBar();
   document.getElementById("rescount").textContent=`${L.length} of ${S.papers.length} papers${inc?` · ${inc} analysed without full text or still incomplete`:""}`;
   if(!L.length){res.innerHTML=`<div class="empty"><b>No papers match these filters</b><span>Lower the minimum affinity or clear a filter.</span></div>`;return}
   res.innerHTML=`<div class="plist">${L.map(paperRow).join("")}</div>`;
@@ -70,5 +72,5 @@ function paperRow(p){
   const names=authorNames(p);const mk=S.marks[p.id]||{};
   const au=names.length>6?names.slice(0,6).join(", ")+` et al.`:names.join(", ");
   const c=paperCompleteness(p);
-  return `<article class="prow${mk.read?" read":""}">${ring(p.affinity)}<div class="pbody"><a class="ptitle" href="#paper.${esc(p.id)}">${esc(p.title)}</a><div class="pauth">${esc(au||"Authors unknown")}</div><div class="pmeta">${isNewPaper(p)?`<span class="pill amb">New</span>`:""}${compPill(c)}${stalePill(c)}<span class="pill">${esc(p.venueKind||"venue")}</span>${p.paperType?`<span class="pill">${esc(p.paperType)}</span>`:""}<span>${esc(p.venueName||"Unknown venue")}${p.year?" · "+esc(p.year):""}</span>${arr(p.themes).slice(0,3).map(t=>`<span class="pill acc">${esc(t)}</span>`).join("")}</div></div><div class="pact">${S.uid?`<button type="button" class="icobtn" data-mark="star" data-id="${esc(p.id)}" aria-pressed="${!!mk.star}">${mk.star?"★ Starred":"☆ Star"}</button><button type="button" class="icobtn" data-mark="read" data-id="${esc(p.id)}" aria-pressed="${!!mk.read}">${mk.read?"✓ Read":"Mark read"}</button>`:""}</div></article>`;
+  return `<article class="prow${mk.read?" read":""}"><label class="psel"><input type="checkbox" data-sel="${esc(p.id)}"${S.sel.has(p.id)?" checked":""}><span class="sr">Select ${esc(p.title)} for export</span></label>${ring(p.affinity)}<div class="pbody"><a class="ptitle" href="#paper.${esc(p.id)}">${esc(p.title)}</a><div class="pauth">${esc(au||"Authors unknown")}</div><div class="pmeta">${isNewPaper(p)?`<span class="pill amb">New</span>`:""}${compPill(c)}${stalePill(c)}<span class="pill">${esc(p.venueKind||"venue")}</span>${p.paperType?`<span class="pill">${esc(p.paperType)}</span>`:""}<span>${esc(p.venueName||"Unknown venue")}${p.year?" · "+esc(p.year):""}</span>${arr(p.themes).slice(0,3).map(t=>`<span class="pill acc">${esc(t)}</span>`).join("")}</div></div><div class="pact">${S.uid?`<button type="button" class="icobtn" data-mark="star" data-id="${esc(p.id)}" aria-pressed="${!!mk.star}">${mk.star?"★ Starred":"☆ Star"}</button><button type="button" class="icobtn" data-mark="read" data-id="${esc(p.id)}" aria-pressed="${!!mk.read}">${mk.read?"✓ Read":"Mark read"}</button>`:""}</div></article>`;
 }

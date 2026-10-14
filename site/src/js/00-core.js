@@ -1,7 +1,7 @@
 /* ---------- state ---------- */
 // Shared documents: papers/*, conferences/*, journals/*, meta/topic, meta/run, meta/config, meta/control.
 // Private per viewer: data/users/<id>/marks, data/users/<id>/settings (holds API keys).
-const S={confs:[],jours:[],papers:[],topic:null,run:null,config:null,control:null,settings:null,marks:{},loaded:{c:false,j:false,p:false,m:false,settings:false},dbState:"loading",db:null,canEdit:false,uid:null,editingTopic:false,peopleRelOnly:true,jSort:"if"};
+const S={confs:[],jours:[],papers:[],topic:null,run:null,config:null,control:null,settings:null,marks:{},sel:new Set(),shown:[],loaded:{c:false,j:false,p:false,m:false,settings:false},dbState:"loading",db:null,canEdit:false,uid:null,editingTopic:false,peopleRelOnly:true,jSort:"if"};
 const RANKS=[["A*","astar","Flagship"],["A","a","Excellent"],["B","b","Good"],["C","c","Other"],["Unranked","u","Not ranked"]];
 // Sources the weekly scan can search. `api` sources are queried directly; `browser` ones need the owner's Chrome.
 const SOURCES=[
