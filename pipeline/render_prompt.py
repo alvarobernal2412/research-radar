@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -32,6 +33,9 @@ def main() -> None:
         url = json.loads(args.config.read_text(encoding="utf-8")).get("artifactUrl")
     if not url:
         raise SystemExit("Pass --artifact-url or set artifactUrl in config/site.json")
+    # The prompt contains non-ASCII characters; a Windows console or redirect
+    # would otherwise encode it as cp1252 and fail.
+    sys.stdout.reconfigure(encoding="utf-8")
     print(render(url))
 
 
