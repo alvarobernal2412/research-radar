@@ -71,6 +71,24 @@
         "ownPaper": {"type": "boolean"}
       }
     },
+    "aiPolicy": {
+      "description": "A venue's policy on generative AI, from its own pages. Absent means the scan has not looked yet.",
+      "type": "object",
+      "properties": {
+        "stance": {"enum": ["allowed", "disclosure", "restricted", "prohibited", "unclear"], "description": "unclear = the venue publishes nothing specific."},
+        "summary": {"type": "string"}, "rules": {"type": "array", "items": {"type": "string"}},
+        "url": {"type": "string"}, "checkedAt": {"$ref": "#/$defs/date"}
+      }
+    },
+    "formatGuidelines": {
+      "description": "Template and submission rules from the venue's author instructions. Absent means the scan has not looked yet.",
+      "type": "object",
+      "properties": {
+        "summary": {"type": "string"}, "template": {"type": "string"}, "templateUrl": {"type": "string"}, "pageLimit": {"type": "string"},
+        "anonymization": {"enum": ["double-blind", "single-blind", "open", "unknown"]}, "referenceStyle": {"type": "string"},
+        "rules": {"type": "array", "items": {"type": "string"}}, "url": {"type": "string"}, "checkedAt": {"$ref": "#/$defs/date"}
+      }
+    },
     "edition": {
       "type": "object",
       "properties": {"year": {"type": ["integer", "string"]}, "city": {"type": "string"}, "country": {"type": "string"}, "startDate": {"$ref": "#/$defs/date"}, "endDate": {"$ref": "#/$defs/date"}, "url": {"type": "string"}}
@@ -93,6 +111,7 @@
         "pcChairs": {"type": "array", "items": {"$ref": "#/$defs/person"}},
         "seniorPC": {"type": "array", "items": {"$ref": "#/$defs/person"}},
         "programCommittee": {"type": "array", "items": {"$ref": "#/$defs/person"}},
+        "aiPolicy": {"$ref": "#/$defs/aiPolicy"}, "formatGuidelines": {"$ref": "#/$defs/formatGuidelines"},
         "sources": {"type": "array"}, "fetchNotes": {"type": "string"}, "updatedAt": {"type": "string"}
       }
     },
@@ -108,6 +127,7 @@
         "editorsInChief": {"type": "array", "items": {"$ref": "#/$defs/person"}},
         "associateEditors": {"type": "array", "items": {"$ref": "#/$defs/person"}},
         "editorialBoard": {"type": "array", "items": {"$ref": "#/$defs/person"}},
+        "aiPolicy": {"$ref": "#/$defs/aiPolicy"}, "formatGuidelines": {"$ref": "#/$defs/formatGuidelines"},
         "sources": {"type": "array"}, "fetchNotes": {"type": "string"}, "updatedAt": {"type": "string"}
       }
     },
