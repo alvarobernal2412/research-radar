@@ -9,6 +9,14 @@
 | Scan (scheduled task) | A fresh Claude session, on a schedule or on Run now | Follows `pipeline/scan-prompt.md`: reads the database, searches, analyses, writes, and reports. |
 | Pipeline helpers (`pipeline/radar`) | Your machine, tests, or the scan as a reference | Encode the OpenAlex mapping, de-duplication and scoring rules so they can be tested. |
 
+## Radars
+
+One artifact can hold several radars, each a separate research topic. `radars/<id>` is the registry (name, tagline, weekday, time, task id, archived). The first radar, `main`, keeps its documents at the database root, so an install made before multiple radars needs no migration; every other radar keeps the same documents under `radars/<id>/` (for example `radars/nlp/papers/<id>`, `radars/nlp/meta/topic`). The page works out the prefix in one helper (`rp()` in `site/src/js/00-core.js`) and `attachRadar()` in `90-boot.js` drops the previous radar's listeners and state when you switch. Links to a radar other than the first carry its id (`#nlp~paper.<id>`).
+
+Shared by all radars: `data/users/<id>/settings` (API keys), the artifact's sharing, and the weekly-scan lock `scanlock/current`. Per radar and per viewer: the marks (`data/users/<id>/marks` for the first radar, `marks-<radar id>` for the others).
+
+Each radar has its own scheduled task. `pipeline/radar/schedule.py` assigns weekdays so that no two radars scan on the same day while there are seven or fewer, and `pipeline/render_prompt.py --radar <id>` renders that radar's scan prompt (the same prompt with a header telling the scan which prefix to use). Before it does anything, a scan creates `scanlock/current`; if another radar's scan holds it (less than 3 hours old) the scan defers itself and leaves its request queued.
+
 ## Documents
 
 - `papers/<id>`, `conferences/<id>`, `journals/<id>`: written by the scan, and deleted only by the owner from the site.

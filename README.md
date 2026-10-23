@@ -25,6 +25,15 @@ Conferences and journals both have an *Emerging* section. Records the scan could
 
 Nothing in the code is tied to one topic. To use it for another topic, see [docs/new-topic.md](docs/new-topic.md).
 
+## Several radars in one artifact
+
+You can track several topics side by side. The name in the menu bar is a dropdown: pick a radar and every page (Conferences, Journals, Contributions, Network, Topic & scans) shows that radar's data. Each radar has its own topic, sources, papers, venues, scan log and scheduled scan. Your API keys and your name are shared.
+
+- **Add one:** choose *New radar…* in the dropdown, fill in a name, tagline and topic sentence, and paste the prompt it gives you into Claude Code. It is the [add-radar prompt](docs/add-radar-prompt.md): it asks a few multiple-choice questions, picks the weekday, creates the scheduled task and registers the radar. A page cannot create scheduled tasks itself, which is why this step runs in Claude Code.
+- **Different days on purpose:** every radar scans on its own weekday, chosen to be as far as possible from the others (Sunday, then Wednesday, then Friday, and so on), so no source is queried twice in one day from your IP address. With more than seven radars a weekday is shared at hours far apart. A scan also waits if another radar's scan is still running, which covers *Run now* pressed at a bad moment.
+- **Your first radar is untouched.** It keeps its data at the root of the database, its links and its scheduled task, and appears in the dropdown as the first radar. Other radars live under `radars/<id>/` and use links like `#nlp~conferences`.
+- **Archive** a radar from its Topic & scans page to move it out of the main list. Its data is kept.
+
 ## Install
 
 Clone and configure everything with one prompt. Paste this into Claude Code, and the agent asks you a few multiple-choice questions, then clones the repo, builds the page, publishes the artifact and creates the scheduled scan:
@@ -65,7 +74,9 @@ Steps:
    nothing system-wide without asking me. Run: python -m pytest
 3. Copy config/site.example.json to config/site.json and fill in title,
    siteName, tagline, scheduleText, timezone, lookbackYears and minAffinity
-   from my answers. config/site.json is git-ignored: never commit it.
+   from my answers, and a "radars" list with one entry for this radar:
+   {id: "main", name: siteName, tagline, root: true, weekday, time} (Monday is
+   0, Sunday is 6). config/site.json is git-ignored: never commit it.
 4. Build: python site/build.py --check
 5. Publish dist/radar.html as a NEW artifact with the capabilities in
    site/capabilities.json. Put the returned URL into config/site.json as
@@ -77,7 +88,9 @@ Steps:
    It must run on my computer (the Chrome sources need it). Put the task id
    into config/site.json as triggerId.
 7. Write meta/config to the artifact's database with {siteName, tagline,
-   triggerId, scheduleText, lookbackYears, minAffinity} from config/site.json.
+   triggerId, scheduleText, lookbackYears, minAffinity} from config/site.json,
+   and the registry entry radars/main with {name: siteName, tagline, root: true,
+   weekday, time, timezone, scheduleText, triggerId, createdAt: today}.
 8. If I asked for the local mirror, set it up (docker compose in infra/) and
    append infra/scan-mirror-step.md to the task prompt as step 9, as the
    README describes.
@@ -142,7 +155,9 @@ Steps:
    python pipeline/render_prompt.py, compare it with my scheduled task's
    current prompt, and update the task according to my answer to question 2.
    Keep its schedule and triggerId, and keep any local-mirror step 9 that was
-   appended to it earlier.
+   appended to it earlier. If config/site.json lists several radars, do this
+   for each one with python pipeline/render_prompt.py --radar <id> and that
+   radar's own task. Never move two radars' tasks onto the same day.
 7. If infra/ changed and the local mirror stack exists: run
    docker compose up -d --build inside infra/. Never use down -v.
 8. If pipeline/schema/ changed, tell me what changed and whether stored
@@ -199,6 +214,7 @@ pipeline/
   radar/openalex.py     OpenAlex client + mapping to paper records (+ CLI)
   radar/dedup.py        duplicate detection and stable document ids
   radar/scoring.py      affinity formula and completeness rules
+  radar/schedule.py     weekday and time for each radar's weekly scan
   schema/               JSON Schema of every stored document and the export file
 config/
   site.example.json     template for your deployment settings (no secrets)
@@ -208,7 +224,7 @@ tests/
   test_pipeline.py      pytest for the pipeline helpers
   smoke/smoke.js        end-to-end test of the built page against a mocked runtime
   fixtures/             sample OpenAlex work and paper records
-docs/                   architecture, new-topic walkthrough, install and update prompts
+docs/                   architecture, new-topic walkthrough, install, update and add-radar prompts
 data/                   put exported JSON snapshots here (git-ignored unless you add them)
 .env.example            OpenAlex key and contact email for running the CLI locally (copy to .env, git-ignored)
 LICENSE                 Apache-2.0

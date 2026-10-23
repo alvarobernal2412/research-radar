@@ -38,7 +38,9 @@ Steps:
    nothing system-wide without asking me. Run: python -m pytest
 3. Copy config/site.example.json to config/site.json and fill in title,
    siteName, tagline, scheduleText, timezone, lookbackYears and minAffinity
-   from my answers. config/site.json is git-ignored: never commit it.
+   from my answers, and a "radars" list with one entry for this radar:
+   {id: "main", name: siteName, tagline, root: true, weekday, time} (Monday is
+   0, Sunday is 6). config/site.json is git-ignored: never commit it.
 4. Build: python site/build.py --check
 5. Publish dist/radar.html as a NEW artifact with the capabilities in
    site/capabilities.json. Put the returned URL into config/site.json as
@@ -50,7 +52,9 @@ Steps:
    It must run on my computer (the Chrome sources need it). Put the task id
    into config/site.json as triggerId.
 7. Write meta/config to the artifact's database with {siteName, tagline,
-   triggerId, scheduleText, lookbackYears, minAffinity} from config/site.json.
+   triggerId, scheduleText, lookbackYears, minAffinity} from config/site.json,
+   and the registry entry radars/main with {name: siteName, tagline, root: true,
+   weekday, time, timezone, scheduleText, triggerId, createdAt: today}.
 8. If I asked for the local mirror, set it up (docker compose in infra/) and
    append infra/scan-mirror-step.md to the task prompt as step 9, as the
    README describes.
@@ -85,4 +89,4 @@ The prompt is safe to run again in an existing clone: if `config/site.json` alre
 - The Claude desktop app with Claude in Chrome, if you want DBLP, IEEE, SpringerLink, ACM, arXiv, Scholar or Scopus. OpenAlex needs neither.
 - Python 3.11+. Node and Docker are optional (smoke test and the local mirror).
 
-Step-by-step version of the same flow: [new-topic.md](new-topic.md). To bring an existing install up to date later, use the [update prompt](update-prompt.md).
+To track another topic in the same artifact later, use the [add-radar prompt](add-radar-prompt.md). Step-by-step version of the same flow: [new-topic.md](new-topic.md). To bring an existing install up to date later, use the [update prompt](update-prompt.md).

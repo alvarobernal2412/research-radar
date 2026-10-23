@@ -36,7 +36,9 @@ Steps:
    python pipeline/render_prompt.py, compare it with my scheduled task's
    current prompt, and update the task according to my answer to question 2.
    Keep its schedule and triggerId, and keep any local-mirror step 9 that was
-   appended to it earlier.
+   appended to it earlier. If config/site.json lists several radars, do this
+   for each one with python pipeline/render_prompt.py --radar <id> and that
+   radar's own task. Never move two radars' tasks onto the same day.
 7. If infra/ changed and the local mirror stack exists: run
    docker compose up -d --build inside infra/. Never use down -v.
 8. If pipeline/schema/ changed, tell me what changed and whether stored
