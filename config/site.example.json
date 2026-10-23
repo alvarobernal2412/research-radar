@@ -1,5 +1,5 @@
 {
-  "_comment": "Copy to config/site.json for your deployment. No secrets here: API keys are entered on the site and stored privately in its database.",
+  "_comment": "Copy to config/site.json for your deployment. No secrets here: API keys are entered on the site and stored privately in its database. radars lists every radar with its weekly slot (0 = Monday ... 6 = Sunday); the first one, main, is stored at the database root. A config without radars is read as that single radar.",
   "title": "Research Radar",
   "outFile": "radar.html",
   "artifactUrl": "https://claude.ai/artifact/<id>",
@@ -10,5 +10,8 @@
   "scheduleText": "Sundays at 09:49",
   "timezone": "Europe/Zurich",
   "lookbackYears": 3,
-  "minAffinity": 35
+  "minAffinity": 35,
+  "radars": [
+    {"id": "main", "name": "Research Radar", "root": true, "weekday": 6, "time": "09:00", "triggerId": "trig_..."}
+  ]
 }

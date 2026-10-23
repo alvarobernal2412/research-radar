@@ -3,7 +3,9 @@ from pathlib import Path
 
 from radar.dedup import dedupe, fold, paper_id
 from radar.openalex import normalize_doi, reconstruct, reconstruct_abstract, redact, to_paper
+from radar.schedule import assign_slot, cron_expression, schedule_text
 from radar.scoring import affinity, completeness, normalize_stated_fields
+from render_prompt import render
 
 FIX = Path(__file__).parent / "fixtures"
 
@@ -161,3 +163,53 @@ def test_reconstruct_matches_by_title_and_year_when_the_doi_is_missing():
     rec, changed = reconstruct(p, _work())
     assert changed and rec["abstract"]
 
+
+# --- multi-radar: scheduling and prompt rendering ---
+
+def test_first_radar_scans_on_sunday_morning():
+    assert assign_slot([]) == (6, "09:00")
+
+
+def test_new_radars_take_the_weekday_farthest_from_the_others():
+    slots = []
+    for _ in range(4):
+        slots.append(assign_slot(slots))
+    days = [d for d, _ in slots]
+    assert days[:3] == [6, 2, 4]
+    assert len(set(days)) == 4
+
+
+def test_each_of_seven_radars_gets_its_own_weekday():
+    slots = []
+    for _ in range(7):
+        slots.append(assign_slot(slots))
+    assert sorted(d for d, _ in slots) == list(range(7))
+    assert {t for _, t in slots} == {"09:00"}
+
+
+def test_an_eighth_radar_shares_a_weekday_twelve_hours_away():
+    day, time = assign_slot([(d, "09:00") for d in range(7)])
+    assert (day, time) == (6, "21:00")
+
+
+def test_assign_slot_accepts_registry_documents():
+    assert assign_slot([{"weekday": 6, "time": "09:00"}])[0] == 2
+
+
+def test_schedule_text_and_cron():
+    assert schedule_text(6, "09:00") == "Sundays at 09:00"
+    assert cron_expression(6, "09:00") == "0 9 * * 0"
+    assert cron_expression(0, "07:30") == "30 7 * * 1"
+
+
+def test_first_radar_prompt_has_no_prefix_header():
+    text = render("https://claude.ai/artifact/x")
+    assert "Never read or write another" not in text
+    assert "{{" not in text
+
+
+def test_other_radar_prompt_prefixes_every_path():
+    text = render("https://claude.ai/artifact/x", "nlp", "NLP radar")
+    assert "`radars/nlp/`" in text and "NLP radar" in text
+    assert 'radarId: "nlp"' in text
+    assert "{{" not in text
