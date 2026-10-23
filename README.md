@@ -4,6 +4,7 @@ A literature radar for one research topic. A weekly Claude scan finds new papers
 
 - **Conferences:** a CORE tier list, deadlines for every track, the next edition and the one after, and committees with topic-related people flagged.
 - **Journals:** journals ordered by impact factor or topic fit, with special issues and editorial boards.
+- **Venue pages** (conferences and journals) also show the venue's **AI usage guidelines** and **format guidelines** (template, page limit, review type), each with a source link and the date it was checked, and the **papers found here**, grouped by edition year. Guidelines the scan hasn't collected yet show as "Not collected yet".
 - **Contributions:** every paper found, with filters, sorting and search by title or author. Each paper has a detail page with:
   - its affinity to your topic;
   - a summary and its main contribution;
