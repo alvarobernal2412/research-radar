@@ -1,0 +1,18 @@
+/* Radar picker (the brand in the menu bar) and the New radar dialog. */
+.brand{position:relative}
+.brand-btn{font:inherit;display:flex;align-items:baseline;gap:10px;padding:4px 8px;margin:-4px -8px;border:1px solid transparent;border-radius:var(--r);background:transparent;color:var(--ink);cursor:pointer;text-align:left}
+.brand-btn:hover,.brand-btn[aria-expanded="true"]{background:var(--sunk)}
+.brand-name{display:flex;align-items:baseline;gap:10px;min-width:0}
+.brand-btn .chev{align-self:center;color:var(--muted);flex:none}
+.rmenu{position:absolute;top:calc(100% + 8px);left:-8px;z-index:30;min-width:260px;max-width:min(360px,calc(100vw - 32px));display:flex;flex-direction:column;padding:6px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:0 8px 24px rgba(0,0,0,.14)}
+.rmi{font:inherit;font-size:.9rem;display:flex;justify-content:space-between;align-items:baseline;gap:14px;width:100%;padding:8px 10px;border:0;border-radius:4px;background:transparent;color:var(--ink);cursor:pointer;text-align:left}
+.rmi small{font-size:.74rem;color:var(--muted);white-space:nowrap}
+.rmi:hover,.rmi:focus-visible{background:var(--sunk)}
+.rmi.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.rmi.add{color:var(--accent);font-weight:500}
+.rmh{padding:8px 10px 2px;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.rsep{height:1px;margin:6px 4px;background:var(--line)}
+.modal-back{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-start;justify-content:center;padding:max(24px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 24px max(16px,env(safe-area-inset-left,0px));overflow-y:auto;background:rgba(10,18,16,.5)}
+.modal{display:flex;flex-direction:column;gap:14px;width:min(640px,100%);margin-top:6vh;padding:22px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);color:var(--ink)}
+.modal textarea{min-height:12rem;resize:vertical}
+@media (max-width:640px){.brand-name{flex-direction:column;gap:0}}

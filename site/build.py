@@ -38,6 +38,16 @@ def load_config(path: Path | None) -> dict:
     return {}
 
 
+def add_radar_prompt() -> str:
+    """The prompt behind the site's "New radar" dialog: the text block of docs/add-radar-prompt.md, as a JS string."""
+    nl, fence = chr(10), chr(96) * 3
+    text = (REPO / "docs" / "add-radar-prompt.md").read_text(encoding="utf-8").replace(chr(13) + nl, nl)
+    start = text.index(fence + "text" + nl) + len(fence + "text" + nl)
+    prompt = text[start : text.index(nl + fence, start)]
+    # "</" would end the inline script early.
+    return json.dumps(prompt, ensure_ascii=False).replace("</", "<" + chr(92) + "/")
+
+
 def build(title: str, out: Path) -> Path:
     template = (SRC / "index.html").read_text(encoding="utf-8")
     styles_dir = SRC / "styles"
@@ -51,6 +61,7 @@ def build(title: str, out: Path) -> Path:
     if "/*@VENDOR_LAZY@*/{}" not in scripts:
         raise SystemExit("VENDOR_LAZY placeholder missing from the scripts")
     scripts = scripts.replace("/*@VENDOR_LAZY@*/{}", lazy)
+    scripts = scripts.replace('/*@ADD_RADAR_PROMPT@*/""', add_radar_prompt())
     html = (
         template.replace("{{TITLE}}", title)
         .replace("{{STYLES}}", styles)

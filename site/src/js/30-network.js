@@ -74,7 +74,7 @@ function renderNetworkShell(){
   const app2=document.getElementById("net-info");
   app2.addEventListener("click",e=>{const b=e.target.closest("button[data-nid]");if(b){netSelect(b.dataset.nid,true)}const c=e.target.closest("[data-netclear]");if(c)netSelect(null)});
 }
-function netSaveHidden(){lsSet("pr-net-hidden",[...NET.hidden])}
+function netSaveHidden(){lsSet(rkey("pr-net-hidden"),[...NET.hidden])}
 function netMatches(){const g=NET.graph;if(!g)return[];const q=nkey(NET.q);if(!q)return g.list;return g.list.filter(n=>(nkey(n.name)+" "+nkey(n.aff)).includes(q))}
 function netCounts(){const g=NET.graph;if(!g)return;const shown=g.list.filter(n=>!NET.hidden.has(n.id)).length;const m=netMatches().length;
   document.getElementById("net-count").textContent=`${shown} of ${g.list.length} people shown${NET.q.trim()?` · ${m} match the search`:""}`;
@@ -176,6 +176,6 @@ function renderNetInfo(){
   const co=g.links.filter(l=>l.s===n.id||l.t===n.id).map(l=>({o:g.nodes.get(l.s===n.id?l.t:l.s),w:l.w})).sort((a,b)=>b.w-a.w||a.o.name.localeCompare(b.o.name));
   const papers=n.papers.slice().sort((a,b)=>(num(b.affinity)||0)-(num(a.affinity)||0));
   el.innerHTML=`<div class="hd"><div style="display:flex;flex-direction:column;gap:4px"><h2>${esc(n.name)}${n.self?` <span class="pill amb" style="vertical-align:middle">you</span>`:""}</h2>${n.aff?`<span class="muted" style="font-size:.86rem">${esc(n.aff)}</span>`:""}${n.kw.length?`<div class="chips">${n.kw.map(k=>`<span class="pill">${esc(k)}</span>`).join("")}</div>`:""}</div><div style="display:flex;gap:8px;align-items:center">${n.profile?`<a href="${esc(n.profile)}" target="_blank" rel="noopener" style="font-size:.85rem">Profile ↗</a>`:""}<button type="button" class="btn" data-netclear>Clear selection</button></div></div>
-  <div class="cols"><div style="display:flex;flex-direction:column;gap:6px"><div class="eyebrow">${papers.length} paper${papers.length>1?"s":""} in the radar</div><ul>${papers.map(p=>`<li><a href="#paper.${esc(p.id)}">${esc(p.title)}</a> <span class="muted" style="font-size:.78rem">· ${esc(p.venueName||"")}${num(p.affinity)!==null?` · ${p.affinity}%`:""}</span></li>`).join("")}</ul></div>
+  <div class="cols"><div style="display:flex;flex-direction:column;gap:6px"><div class="eyebrow">${papers.length} paper${papers.length>1?"s":""} in the radar</div><ul>${papers.map(p=>`<li><a href="${H("paper",p.id)}">${esc(p.title)}</a> <span class="muted" style="font-size:.78rem">· ${esc(p.venueName||"")}${num(p.affinity)!==null?` · ${p.affinity}%`:""}</span></li>`).join("")}</ul></div>
   <div style="display:flex;flex-direction:column;gap:6px"><div class="eyebrow">${co.length} collaborator${co.length===1?"":"s"}</div>${co.length?`<div class="collab">${co.map(c=>`<button type="button" data-nid="${esc(c.o.id)}"${NET.hidden.has(c.o.id)?' title="Hidden in the graph"':""}><span>${esc(c.o.name)}${NET.hidden.has(c.o.id)?" (hidden)":""}</span><span>${c.w} shared</span></button>`).join("")}</div>`:`<span class="muted" style="font-size:.86rem">No co-authors among the radar papers.</span>`}</div></div>`;
 }

@@ -5,5 +5,5 @@ function toggleMark(id,kind){
   const cur=Object.assign({},S.marks[id]||{});cur[kind]=!cur[kind];
   S.marks=Object.assign({},S.marks,{[id]:cur});schedule();if(route().view==="paper")render(true);
   const snapshot=S.marks;
-  markBusy=markBusy.then(()=>S.db.doc(`data/users/${S.uid}/marks`).set({papers:snapshot})).catch(()=>{});
+  markBusy=markBusy.then(()=>S.db.doc(marksPath()).set({papers:snapshot})).catch(()=>{});
 }

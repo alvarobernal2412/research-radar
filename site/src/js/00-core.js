@@ -1,7 +1,8 @@
 /* ---------- state ---------- */
 // Shared documents: papers/*, conferences/*, journals/*, meta/topic, meta/run, meta/config, meta/control.
+// With several radars, every radar after the first keeps these under radars/<id>/ (see rp()); the registry is radars/<id>.
 // Private per viewer: data/users/<id>/marks, data/users/<id>/settings (holds API keys).
-const S={confs:[],jours:[],papers:[],topic:null,run:null,config:null,control:null,settings:null,marks:{},sel:new Set(),shown:[],loaded:{c:false,j:false,p:false,m:false,settings:false},dbState:"loading",db:null,canEdit:false,uid:null,editingTopic:false,peopleRelOnly:true,jSort:"if"};
+const S={radars:[],radarsLoaded:false,rid:"main",confs:[],jours:[],papers:[],topic:null,run:null,config:null,control:null,settings:null,marks:{},sel:new Set(),shown:[],loaded:{c:false,j:false,p:false,m:false,settings:false},dbState:"loading",db:null,canEdit:false,uid:null,editingTopic:false,peopleRelOnly:true,jSort:"if"};
 const RANKS=[["A*","astar","Flagship"],["A","a","Excellent"],["B","b","Good"],["C","c","Other"],["Unranked","u","Not ranked"]];
 // Sources the weekly scan can search. `api` sources are queried directly; `browser` ones need the owner's Chrome.
 const SOURCES=[
@@ -19,7 +20,7 @@ const app=document.getElementById("app");
 // Filled in by site/build.py from site/vendor.json ("lazy" libraries, loaded on demand).
 const VENDOR_LAZY=/*@VENDOR_LAZY@*/{};
 function cfg(){return S.config||{}}
-function siteName(){return cfg().siteName||"Research Radar"}
+function siteName(){return cfg().siteName||(radarInfo(S.rid)||{}).name||"Research Radar"}
 function scheduleText(){return cfg().scheduleText||"weekly"}
 function sourceOn(id){const s=cfg().sources;if(s&&typeof s[id]==="boolean")return s[id];const d=SOURCES.find(x=>x.id===id);return !!(d&&d.def)}
 function topicRevision(){return num(S.topic&&S.topic.revision)||1}
@@ -47,5 +48,20 @@ function srcList(s){s=arr(s);if(!s.length)return"";return `<div class="panel"><d
 
 /* ---------- filters ---------- */
 const F_DEFAULT={q:"",minAff:0,kind:"all",type:"all",venue:"all",theme:"all",db:"all",comp:"all",yearFrom:"",yearTo:"",onlyNew:false,onlyStar:false,hideRead:false,sort:"affinity"};
-const F=Object.assign({},F_DEFAULT,lsGet("pr-filters",{}));
-S.jSort=lsGet("pr-jsort","if");
+const F=Object.assign({},F_DEFAULT);
+/* ---------- radars ---------- */
+// The first radar ("main") stays at the database root and keeps the old link and storage names;
+// every other radar lives under radars/<id>/ and puts its id in links as #<id>~view.id.
+const MAIN="main";
+const isRoot=()=>S.rid===MAIN;
+const rp=path=>isRoot()?path:`radars/${S.rid}/${path}`;
+const rkey=k=>isRoot()?k:`${k}:${S.rid}`;
+const marksPath=()=>isRoot()?`data/users/${S.uid}/marks`:`data/users/${S.uid}/marks-${S.rid}`;
+const H=(view,id)=>`#${isRoot()?"":S.rid+"~"}${view}${id?"."+esc(id):""}`;
+const RADAR_ID=/^[a-z0-9][a-z0-9-]{1,29}$/;
+function radarList(){
+  const L=S.radars.slice();
+  if(!L.some(r=>r.id===MAIN))L.unshift({id:MAIN,name:(isRoot()&&cfg().siteName)||"Research Radar",root:true});
+  return L.sort((a,b)=>(a.id===MAIN?-1:b.id===MAIN?1:0)||(num(a.order)||0)-(num(b.order)||0)||String(a.createdAt||"").localeCompare(String(b.createdAt||"")));
+}
+function radarInfo(id){return radarList().find(r=>r.id===id)||null}

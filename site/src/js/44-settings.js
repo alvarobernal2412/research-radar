@@ -52,7 +52,7 @@ async function exportData(){
   let dl=null;try{dl=await window.claude.use("downloads")}catch(e){}
   if(!dl){setMsg("export","Downloads aren't available in this view.","err");return}
   const strip=d=>{const o=Object.assign({},d);return o};
-  const data={format:"research-radar/v1",exportedAt:new Date().toISOString(),site:{name:siteName()},topic:S.topic,config:S.config,run:S.run,control:S.control,papers:S.papers.map(strip),conferences:S.confs.map(strip),journals:S.jours.map(strip)};
+  const data={format:"research-radar/v1",exportedAt:new Date().toISOString(),site:{name:siteName(),radar:S.rid},topic:S.topic,config:S.config,run:S.run,control:S.control,papers:S.papers.map(strip),conferences:S.confs.map(strip),journals:S.jours.map(strip)};
   const slug=siteName().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"radar";
   try{await dl.save({filename:`${slug}-data-${today()}.json`,data:JSON.stringify(data,null,2)});setMsg("export","Saved.","ok")}
   catch(e){if(e&&e.code!=="declined")setMsg("export","Couldn't save the file.","err")}
@@ -71,6 +71,8 @@ app.addEventListener("click",e=>{
   else if(a==="stop"){if(TP.derive.ctl)TP.derive.ctl.abort()}
   else if(a==="queue-derive")queueDerive();
   else if(a==="rmdoc"){TP.derive.docs.splice(Number(b.dataset.i),1);rerenderTopicSection()}
+  else if(a==="archive")setArchived(true);
+  else if(a==="restore")setArchived(false);
   else if(a==="run-now")requestScan(true);
   else if(a==="run-queue")requestScan(false);
   else if(a==="rm-ask"){TP.confirm=rmSelection();const s=document.getElementById("tp-maint");if(s)s.innerHTML=maintenanceSection()}

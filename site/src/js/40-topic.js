@@ -59,7 +59,7 @@ async function saveTopic(){
   if(TP.draft&&arr(TP.draft.seeds).length)body.seeds=TP.draft.seeds;
   if(!body.selfName)delete body.selfName;
   setMsg("topic","Saving…");TP.busy=true;
-  try{await S.db.doc("meta/topic").set(body);S.topic=body;TP.busy=false;TP.mode=null;TP.draft=null;TP.dirty=false;
+  try{await S.db.doc(rp("meta/topic")).set(body);S.topic=body;TP.busy=false;TP.mode=null;TP.draft=null;TP.dirty=false;
     if(changed&&S.papers.length)TP.changed={revision:body.revision};renderTopic();
     if(TP.changed){const b=document.getElementById("tp-changed");if(b)b.scrollIntoView({block:"start"})}}
   catch(e){TP.busy=false;setMsg("topic",e&&e.code==="invalid_argument"?"You don't have permission to change the topic.":"Couldn't save. Try again in a moment.","err")}
@@ -155,7 +155,7 @@ async function queueDerive(){
   const topic=Object.assign({},S.topic||{});const seeds=arr(topic.seeds).slice();
   dois.forEach(d=>{if(!seeds.some(s=>s.doi===d))seeds.push({title:"",doi:d})});
   TP.busy=true;setMsg("derive","Saving…");
-  try{topic.seeds=seeds;await S.db.doc("meta/topic").set(topic);S.topic=topic;
+  try{topic.seeds=seeds;await S.db.doc(rp("meta/topic")).set(topic);S.topic=topic;
     await writeControl({status:"queued",deriveTopicFromSeeds:true,mode:(S.control&&S.control.status==="queued"&&S.control.mode)||"incremental",requestedAt:new Date().toISOString()});
     TP.busy=false;TP.mode=null;TP.dirty=false;TP.derive.text="";renderTopic();
     setMsg("maint",`Queued: the next scan will look up ${dois.length} DOI${dois.length>1?"s":""} and derive your topic. Run it now below, or wait for the schedule.`,"ok");

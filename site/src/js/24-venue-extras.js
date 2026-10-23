@@ -31,6 +31,6 @@ function venuePapersBlock(v,kind){
   const years=Object.keys(by).sort((a,b)=>(+b||0)-(+a||0));
   const rows=years.map(y=>{
     const ps=by[y].sort((a,b)=>(num(b.affinity)||0)-(num(a.affinity)||0));
-    return `<div class="panel"><div class="eyebrow">${kind==="conference"&&+y?`${esc(y)} edition`:esc(y)} · ${ps.length} paper${ps.length===1?"":"s"}</div>${ps.map(p=>`<div style="display:flex;gap:10px;align-items:center">${ring(p.affinity,36)}<div><a href="#paper.${esc(p.id)}">${esc(p.title)}</a><div class="muted" style="font-size:.78rem">${esc(authorNames(p).slice(0,4).join(", ")+(authorNames(p).length>4?" et al.":""))}</div></div></div>`).join("")}</div>`}).join("");
+    return `<div class="panel"><div class="eyebrow">${kind==="conference"&&+y?`${esc(y)} edition`:esc(y)} · ${ps.length} paper${ps.length===1?"":"s"}</div>${ps.map(p=>`<div style="display:flex;gap:10px;align-items:center">${ring(p.affinity,36)}<div><a href="${H("paper",p.id)}">${esc(p.title)}</a><div class="muted" style="font-size:.78rem">${esc(authorNames(p).slice(0,4).join(", ")+(authorNames(p).length>4?" et al.":""))}</div></div></div>`).join("")}</div>`}).join("");
   return `<div style="display:flex;flex-direction:column;gap:10px">${head}${rows}</div>`;
 }

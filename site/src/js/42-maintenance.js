@@ -8,8 +8,8 @@ const SCAN_MODES=[
   ["rescore","Rescore stored papers against the current topic, then look for new ones"],
   ["full","Start over: search the whole lookback period again"]
 ];
-async function writeControl(patch){const body=Object.assign({},S.control||{},patch,{updatedAt:new Date().toISOString()});await S.db.doc("meta/control").set(body);S.control=body;renderRunStat();return body}
-async function writeConfig(patch){const body=Object.assign({},S.config||{},patch,{updatedAt:new Date().toISOString()});await S.db.doc("meta/config").set(body);S.config=body;return body}
+async function writeControl(patch){const body=Object.assign({},S.control||{},patch,{updatedAt:new Date().toISOString()});await S.db.doc(rp("meta/control")).set(body);S.control=body;renderRunStat();return body}
+async function writeConfig(patch){const body=Object.assign({},S.config||{},patch,{updatedAt:new Date().toISOString()});await S.db.doc(rp("meta/config")).set(body);S.config=body;return body}
 function paperCounts(){
   const P=S.papers;const starred=P.filter(p=>(S.marks[p.id]||{}).star).length;
   const inc=P.filter(p=>paperCompleteness(p).level!=="complete").length;const stale=P.filter(p=>paperCompleteness(p).stale).length;
@@ -36,6 +36,7 @@ function maintenanceSection(){
     <div class="btnrow"><button type="button" class="btn danger" data-tp="rm-ask">Remove…</button></div>
     ${TP.confirm?confirmBox():""}
   </form></div>
+  ${radarPanel()}
   <div data-msg="maint">${msgLine("maint")}</div>`;
   return h;
 }
@@ -54,8 +55,8 @@ async function removeSelected(){
   const c=TP.confirm;if(!c)return;TP.busy=true;let done=0,failed=0;
   const total=c.ids.length+(c.venues?S.confs.length+S.jours.length:0);
   const step=async path=>{try{await S.db.doc(path).delete();done++}catch(e){failed++}setMsg("maint",`Deleting… ${done+failed} of ${total}`)};
-  for(const id of c.ids)await step("papers/"+id);
-  if(c.venues){for(const v of S.confs.slice())await step("conferences/"+v.id);for(const v of S.jours.slice())await step("journals/"+v.id)}
+  for(const id of c.ids)await step(rp("papers/"+id));
+  if(c.venues){for(const v of S.confs.slice())await step(rp("conferences/"+v.id));for(const v of S.jours.slice())await step(rp("journals/"+v.id))}
   TP.busy=false;TP.confirm=null;
   renderTopic();setMsg("maint",failed?`Deleted ${done}; ${failed} couldn't be deleted (you may not have permission).`:`Deleted ${done} record${done===1?"":"s"}.`,failed?"err":"ok");
 }
@@ -67,7 +68,7 @@ async function requestScan(runNow){
   catch(e){TP.busy=false;setMsg("maint","Couldn't save the request. You may not have permission to change this site.","err");return}
   if(!runNow){TP.busy=false;TP.changed=null;renderTopic();setMsg("maint","Queued for the next scheduled scan.","ok");return}
   setMsg("maint","Starting the scan… you may be asked to allow this page to use Claude Code Remote.");
-  const r=await fireScan(`Requested from the site: mode=${mode}, lookbackYears=${years}. Read meta/control and follow it.`);
+  const r=await fireScan(`Requested from the site${isRoot()?"":` for radar ${S.rid}`}: mode=${mode}, lookbackYears=${years}. Read meta/control and follow it.`);
   TP.busy=false;
   if(r.ok){try{await writeControl({firedAt:new Date().toISOString()})}catch(e){}TP.changed=null;renderTopic();setMsg("maint","Scan started. It runs in the background; new results appear here as they're written.","ok")}
   else{renderTopic();setMsg("maint",r.msg+" The request stays queued for the next scheduled scan.","err")}
@@ -87,4 +88,9 @@ async function retryPaper(id){
   const ids=arr(S.control&&S.control.retryPaperIds);if(ids.includes(id))return;
   try{await writeControl({retryPaperIds:ids.concat(id),status:"queued",mode:(S.control&&S.control.status==="queued"&&S.control.mode)||"incremental",requestedAt:(S.control&&S.control.status==="queued"&&S.control.requestedAt)||new Date().toISOString()});render(true)}
   catch(e){const b=document.querySelector(`[data-retry="${CSS.escape(id)}"]`);if(b)b.textContent="Couldn't queue the retry"}
+}
+function radarPanel(){
+  const r=S.radars.find(x=>x.id===S.rid);
+  if(!r||!S.canEdit)return"";
+  return `<form class="panel" onsubmit="return false"><h3>This radar</h3><p class="muted" style="margin:0;font-size:.86rem">${r.archived?"Archived radars stay in the menu under Archived and keep their data. Their scheduled scan keeps running until you delete the task in Claude Code.":"Archiving hides the radar from the main list. Its data is kept."}${radarSlot(r)?` Scans ${esc(radarSlot(r))}.`:""}</p><div class="btnrow"><button type="button" class="btn" data-tp="${r.archived?"restore":"archive"}">${r.archived?"Restore radar":"Archive radar"}</button></div></form>`;
 }
