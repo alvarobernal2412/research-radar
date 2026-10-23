@@ -210,7 +210,7 @@ tests/
 docs/                   architecture, new-topic walkthrough, install and update prompts
 data/                   put exported JSON snapshots here (git-ignored unless you add them)
 .env.example            OpenAlex key and contact email for running the CLI locally (copy to .env, git-ignored)
-LICENSE                 AGPL-3.0-or-later
+LICENSE                 Apache-2.0
 ```
 
 ## Working on it
@@ -261,4 +261,4 @@ The stack does not need to be running for scans to work; a failed mirror step ne
 
 ## License
 
-GNU Affero General Public License v3.0 or later. See [LICENSE](LICENSE).
+Apache License 2.0. See [LICENSE](LICENSE).
