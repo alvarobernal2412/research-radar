@@ -14,14 +14,16 @@ function renderJournals(){
 function renderJournalDetail(id){
   const j=S.jours.find(x=>x.id===id);
   if(!j){app.innerHTML=S.loaded.j?notFound("journal","#journals","Journals"):loadingBlock();return}
-  const m=[["Impact factor",num(j.impactFactor)!==null?j.impactFactor.toFixed(2)+(j.ifYear?` (${j.ifYear})`:""):null],["5-year IF",num(j.impactFactor5y)!==null?j.impactFactor5y.toFixed(2):null],["2-yr mean citedness (OpenAlex)",num(j.citedness2y)!==null?j.citedness2y.toFixed(2):null],["CiteScore",j.citeScore],["SJR",j.sjr],["Quartile",j.quartile],["h-index",j.hIndex],["Time to 1st decision",j.reviewTime],["Acceptance rate",j.acceptanceRate],["Open access",j.openAccess],["ISSN",j.issn],["Topic fit",num(j.topicScore)!==null?j.topicScore+"%":null],["Papers here",String(S.papers.filter(p=>p.venueId===j.id).length)],["Updated",j.updatedAt?fmtDate(j.updatedAt):null]].filter(x=>x[1]!=null&&x[1]!=="");
+  const m=[["Impact factor",num(j.impactFactor)!==null?j.impactFactor.toFixed(2)+(j.ifYear?` (${j.ifYear})`:""):null],["5-year IF",num(j.impactFactor5y)!==null?j.impactFactor5y.toFixed(2):null],["2-yr mean citedness (OpenAlex)",num(j.citedness2y)!==null?j.citedness2y.toFixed(2):null],["CiteScore",j.citeScore],["SJR",j.sjr],["Quartile",j.quartile],["h-index",j.hIndex],["Time to 1st decision",j.reviewTime],["Acceptance rate",j.acceptanceRate],["Open access",j.openAccess],["ISSN",j.issn],["Topic fit",num(j.topicScore)!==null?j.topicScore+"%":null],["Papers here",String(venuePapers(j).length)],["Updated",j.updatedAt?fmtDate(j.updatedAt):null]].filter(x=>x[1]!=null&&x[1]!=="");
   let h=`<a class="back" href="#journals">← Journals</a><div class="dhead"><div class="eyebrow">${j.emerging?"Emerging journal":"Journal"}</div><h1>${esc(j.name)}</h1><div class="meta">${esc(j.publisher||"")}${j.url?` · <a href="${esc(j.url)}" target="_blank" rel="noopener">Website ↗</a>`:""}</div></div><div class="dgrid"><div class="prose" style="max-width:none">`;
   if(j.scope)h+=`<div><div class="eyebrow">Aims and scope</div><p>${esc(j.scope)}</p></div>`;
   if(j.topicNote)h+=`<div><div class="eyebrow">Why it matters for your topic</div><p>${esc(j.topicNote)}</p></div>`;
   if(j.emerging&&j.emergingReason)h+=`<div class="notice"><b>Emerging:</b> ${esc(j.emergingReason)}</div>`;
   h+=gapNotice(venueGaps(j,"journal"));
+  h+=guidelinesBlock(j);
   const si=arr(j.specialIssues);
   h+=`<div style="display:flex;flex-direction:column;gap:10px"><h2>Special issues</h2>${si.length?`<div class="tblwrap"><table><thead><tr><th>Title</th><th>Submission deadline</th></tr></thead><tbody>${si.map(s=>`<tr><td>${s.url?`<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a>`:esc(s.title)}${s.relevant?` <span class="pill acc">fits your topic</span>`:""}</td><td class="num">${s.deadline?fmtDate(s.deadline):"—"}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty"><span>No special issues tracked.</span></div>`}</div>`;
+  h+=venuePapersBlock(j,"journal");
   h+=`<div style="display:flex;flex-direction:column;gap:14px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2>Editorial board</h2>${relToggle()}</div>${peopleBlock([["Editors-in-chief",j.editorsInChief],["Associate / area editors",j.associateEditors],["Editorial board",j.editorialBoard]])}</div>`;
   h+=`</div><aside class="dside"><div class="panel"><div class="eyebrow">Metrics</div><dl class="kv">${m.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl></div>${srcList(j.sources)}</aside></div>`;
   app.innerHTML=h;

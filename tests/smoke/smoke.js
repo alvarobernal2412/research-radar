@@ -70,6 +70,10 @@ function mockRuntime(seed) {
     "meta/config": { siteName: "Test Radar", tagline: "smoke test", triggerId: "trig_test", scheduleText: "Sundays at 09:49" },
     "meta/run": { lastRunAt: "2026-10-13T14:00:00Z", status: "partial", counts: { newPapers: 3 } },
   };
+  seed["conferences/exconf"] = { name: "Example Conference", acronym: "EXCONF", coreRank: "A", topicScore: 80,
+    aiPolicy: { stance: "disclosure", summary: "Authors must disclose AI tools.", rules: ["No AI-written reviews"], url: "https://example.org/ai", checkedAt: "2026-10-01" },
+    formatGuidelines: { template: "ACM sigconf", templateUrl: "https://example.org/tpl", pageLimit: "10 pages", anonymization: "double-blind", referenceStyle: "numeric", rules: ["PDF only"], url: "https://example.org/fmt", checkedAt: "2026-10-01" } };
+  seed["journals/exjournal"] = { name: "Example Journal", publisher: "Example Press", impactFactor: 3.2 };
   papers.forEach((p, i) => { seed["papers/" + (p.id || "p" + i)] = p; });
   const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {});
   const pg = await browser.newPage({ viewport: { width: 1280, height: 900 } });
@@ -129,6 +133,20 @@ function mockRuntime(seed) {
   await pg.click("[data-retry]");
   await pg.waitForTimeout(200);
   check("retry request is written to meta/control", (await pg.evaluate(() => window.__writes)).some(([, p]) => p === "meta/control"));
+
+  await pg.goto("file://" + page + "#conf.exconf");
+  await pg.waitForTimeout(500);
+  await shot("conference-detail");
+  const ct = await pg.textContent("#app");
+  check("conference shows its AI policy", ct.includes("Allowed with disclosure") && ct.includes("No AI-written reviews"));
+  check("conference shows its format guidelines", ct.includes("ACM sigconf") && ct.includes("double-blind") && ct.includes("10 pages"));
+  const nConf = papers.filter((p) => p.venueId === "exconf").length;
+  check("conference lists its papers grouped by edition", ct.includes("2026 edition") && ct.includes("2024 edition") && (await pg.$$('#app a[href^="#paper."]')).length === nConf, String(nConf));
+  await pg.goto("file://" + page + "#journal.exjournal");
+  await pg.waitForTimeout(500);
+  const jt = await pg.textContent("#app");
+  check("journal without guidelines says they are not collected yet", jt.includes("Not collected yet"));
+  check("journal lists its papers by year", (await pg.$$('#app a[href^="#paper."]')).length === papers.filter((p) => p.venueId === "exjournal").length);
 
   await pg.goto("file://" + page + "#topic");
   await pg.waitForTimeout(500);
