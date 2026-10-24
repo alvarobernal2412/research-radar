@@ -67,7 +67,7 @@ def main() -> None:
     # The prompt contains non-ASCII characters; a Windows console or redirect
     # would otherwise encode it as cp1252 and fail.
     sys.stdout.reconfigure(encoding="utf-8")
-    print(render(url, args.radar, entry.get("name") or cfg.get("siteName", ""), bool(entry.get("root", args.radar == ROOT_RADAR))))
+    print(render(url, args.radar, entry.get("name") or cfg.get("siteName", ""), args.radar == ROOT_RADAR))
 
 
 if __name__ == "__main__":
