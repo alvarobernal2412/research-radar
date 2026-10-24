@@ -54,7 +54,7 @@ function rmShell(inner){
 function rmForm(f,err){
   rmShell(`<h2 id="rm-title">New radar</h2><p class="muted" style="margin:0">A radar tracks one research topic with its own papers, venues and weekly scan. The scan gets its own weekday, so no source is queried twice in one day. Scheduled scans have to be created from Claude Code: fill this in and copy the prompt it produces.</p>
   <div class="fld"><label for="rm-name">Name</label><input type="text" id="rm-name" value="${esc(f.name)}" maxlength="60" autocomplete="off"><span class="muted" id="rm-id" style="font-size:.78rem">${f.name.trim()?`Radar id: ${esc(slugify(f.name)||"…")}`:""}</span></div>
-  <div class="fld"><label for="rm-tagline">Tagline</label><input type="text" id="rm-tagline" value="${esc(f.tagline)}" maxlength="80" autocomplete="off"></div>
+  <div class="fld"><label for="rm-tagline">Radar description</label><input type="text" id="rm-tagline" value="${esc(f.tagline)}" maxlength="80" autocomplete="off" placeholder="What this radar tracks, in a few words"></div>
   <div class="fld"><label for="rm-topic">The topic in a sentence or two</label><textarea id="rm-topic" rows="3" maxlength="600">${esc(f.topic)}</textarea></div>
   <div class="tpmsg err" id="rm-err" role="alert">${esc(err||"")}</div>
   <div class="btnrow"><button type="button" class="btn primary" data-rm="make">Create prompt</button><button type="button" class="btn" data-rm="close">Cancel</button></div>`);
