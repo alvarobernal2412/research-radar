@@ -1,7 +1,7 @@
 [project]
 name = "research-radar"
 version = "1.0.0"
-description = "A self-updating literature radar for one research topic, published as a Claude artifact."
+description = "Self-updating literature radars, one per research topic, published as a single Claude artifact."
 requires-python = ">=3.9"
 dependencies = []
 
