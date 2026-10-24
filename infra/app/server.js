@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const http = require("http");
 const { Pool } = require("pg");
-const { toDocs, split, upsert } = require("./import");
+const { toDocs, split, upsert, prefixOf, RADAR_ID, ROOT_RADAR } = require("./import");
 
 const PORT = +process.env.PORT || 8080;
 const FILES = process.env.FILES_DIR || "/data/files";
@@ -23,11 +23,19 @@ const readBody = (req, max = 32 * 1024 * 1024) => new Promise((resolve, reject) 
   req.on("error", reject);
 });
 
-async function exportAll() {
+// One export per radar: the root radar ("main") or radars/<id>/.
+async function radarIds() {
+  const { rows } = await pool.query("SELECT DISTINCT split_part(path, '/', 2) AS id FROM docs WHERE path LIKE 'radars/%/%'");
+  return [ROOT_RADAR, ...rows.map((r) => r.id).filter((id) => id !== ROOT_RADAR && RADAR_ID.test(id))];
+}
+
+async function exportAll(radar = ROOT_RADAR) {
+  const pre = prefixOf(radar);
   const { rows } = await pool.query("SELECT path, data FROM docs WHERE path !~ '^data/users/'");
-  const out = { format: "research-radar/v1", exportedAt: new Date().toISOString(), site: { name: "local mirror" }, papers: [], conferences: [], journals: [] };
+  const out = { format: "research-radar/v1", exportedAt: new Date().toISOString(), site: { name: "local mirror", radar }, papers: [], conferences: [], journals: [] };
   for (const r of rows) {
-    const { collection, id } = split(r.path);
+    if (pre ? !r.path.startsWith(pre) : r.path.startsWith("radars/") || r.path.startsWith("scanlock/")) continue;
+    const { collection, id } = split(r.path.slice(pre.length));
     if (collection === "meta") out[id] = r.data;
     else if (out[collection]) out[collection].push({ id, ...r.data });
   }
@@ -37,9 +45,14 @@ async function exportAll() {
 async function snapshot(label) {
   const dir = path.join(FILES, "snapshots");
   fs.mkdirSync(dir, { recursive: true });
-  const f = path.join(dir, `${new Date().toISOString().replace(/[:.]/g, "-")}-${label}.json`);
-  fs.writeFileSync(f, JSON.stringify(await exportAll(), null, 1));
-  return f;
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const files = [];
+  for (const id of await radarIds()) {
+    const f = path.join(dir, `${stamp}-${label}${id === ROOT_RADAR ? "" : "-" + id}.json`);
+    fs.writeFileSync(f, JSON.stringify(await exportAll(id), null, 1));
+    files.push(f);
+  }
+  return files[0];
 }
 
 const server = http.createServer(async (req, res) => {
@@ -87,7 +100,11 @@ const server = http.createServer(async (req, res) => {
       const n = await upsert(pool, docs);
       return json(res, 200, { imported: n, snapshot: path.basename(before) });
     }
-    if (req.method === "GET" && u.pathname === "/api/export") return json(res, 200, await exportAll());
+    if (req.method === "GET" && u.pathname === "/api/export") {
+      const radar = u.searchParams.get("radar") || ROOT_RADAR;
+      if (radar !== ROOT_RADAR && !RADAR_ID.test(radar)) return json(res, 400, { error: "bad radar id" });
+      return json(res, 200, await exportAll(radar));
+    }
     if (req.method === "GET" && u.pathname === "/healthz") { await pool.query("SELECT 1"); return json(res, 200, { ok: true }); }
     json(res, 404, { error: "not found" });
   } catch (e) {

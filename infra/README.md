@@ -12,7 +12,7 @@ A docker compose stack that keeps a durable, offline copy of your radar and serv
 
 | Service | Image | Holds |
 |---|---|---|
-| `db` | `postgres:16-alpine` | one `docs` table: a row per artifact document (`papers/<id>`, `conferences/<id>`, `journals/<id>`, `meta/*`, `data/users/local/*`), JSONB payload, version counter. Volume `pgdata`. |
+| `db` | `postgres:16-alpine` | one `docs` table: a row per artifact document (`papers/<id>`, `conferences/<id>`, `journals/<id>`, `meta/*`, `data/users/local/*`, and for extra radars `radars/<id>` plus `radars/<id>/papers/<id>` and so on), JSONB payload, version counter. Volume `pgdata`. |
 | `app` | built from `./app` | serves `dist/radar.html` with a small runtime shim (`/shim.js`) and a JSON API. Volume `files` holds `snapshots/` (a full export is written before every import). |
 
 The page is not rebuilt in the container: it mounts `../dist/radar.html`, so `python site/build.py` is all it takes to update the UI.
@@ -40,12 +40,15 @@ curl -X POST --data-binary @../data/radar-data-2026-10-14.json http://127.0.0.1:
 docker compose run --rm -v "/path/to/export:/in:ro" app node import.js /in
 ```
 
-`data/users/**` (API keys, read marks) is never imported from a folder.
+`data/users/**` (API keys, read marks) and `scanlock/**` are never imported from a folder.
+
+**Several radars.** The first radar ("main") sits at the root; the others under `radars/<id>/`. A site export carries its radar id (`site.radar`), and importing it puts the documents under that radar's prefix, so an export of one radar never lands in another. The radar menu in the page works in the mirror like in the artifact.
 
 ## Get data out
 
 ```bash
 curl http://127.0.0.1:8787/api/export > radar-export.json     # same research-radar/v1 shape as the site export
+curl "http://127.0.0.1:8787/api/export?radar=nlp" > nlp.json  # another radar (default: the first one)
 docker compose exec db pg_dump -U radar radar > radar.sql     # full database
 docker run --rm -v infra_files:/f -v "$PWD:/o" alpine tar czf /o/files.tgz -C /f .   # snapshots
 ```
