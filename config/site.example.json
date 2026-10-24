@@ -1,5 +1,7 @@
 {
-  "_comment": "Copy to config/site.json for your deployment. No secrets here: API keys are entered on the site and stored privately in its database. radars lists every radar with its weekly slot (0 = Monday ... 6 = Sunday); the first one, main, is stored at the database root. A config without radars is read as that single radar.",
+  "_comment": "Copy to config/site.json for your deployment. No secrets here: API keys are entered on the site and stored privately in its database. radars lists every radar with its weekly slot (0 = Monday ... 6 = Sunday); the first one, main, is stored at the database root. A config without radars is read as that single radar. target is who runs the scan: \"claude\" (artifact plus scheduled task, uses artifactUrl and triggerId) or \"codex\" / \"agent\" (self-hosted server at radarUrl, see docs/self-hosted.md; optional agentCommand and scanTimeoutMinutes).",
+  "target": "claude",
+  "radarUrl": "http://127.0.0.1:8787",
   "title": "Research Radar",
   "outFile": "radar.html",
   "artifactUrl": "https://claude.ai/artifact/<id>",
