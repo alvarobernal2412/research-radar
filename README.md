@@ -209,22 +209,29 @@ site/
   vendor.json           pinned CDN libraries (d3 eager, pdf.js lazy)
   capabilities.json     runtime capabilities to declare when publishing
 pipeline/
-  scan-prompt.md        the scheduled scan's instructions ({{ARTIFACT_URL}})
-  render_prompt.py      fills in the prompt from config/site.json
+  scan-prompt.md        the scheduled scan's instructions ({{ARTIFACT_URL}}); {{#claude}} / {{#agent}} blocks pick the tools
+  render_prompt.py      fills in the prompt from config/site.json (--target claude | codex | agent)
+  targets/              extra notes prepended for a target (codex.md)
+  radar_cli.py          shell interface for non-Claude scans: store get/set/list, openalex get, init
+  run_scan.py           renders the prompt and runs the agent CLI (cron, Task Scheduler and Run now call it)
+  schedulers.py         prints cron, schtasks or Codex automation entries
   radar/openalex.py     OpenAlex client + mapping to paper records (+ CLI)
   radar/dedup.py        duplicate detection and stable document ids
   radar/scoring.py      affinity formula and completeness rules
   radar/schedule.py     weekday and time for each radar's weekly scan
+  radar/store.py        client for the self-hosted server's document API
   schema/               JSON Schema of every stored document and the export file
 config/
   site.example.json     template for your deployment settings (no secrets)
   site.json             your deployment (artifact URL, task id, names); git-ignored, create it from the example
-infra/                  optional local mirror: docker compose, Postgres, document API (see below)
+infra/                  the self-hosted server (JSON-file or Postgres store) and the optional docker compose mirror
 tests/
-  test_pipeline.py      pytest for the pipeline helpers
-  smoke/smoke.js        end-to-end test of the built page against a mocked runtime
+  test_*.py             pytest: pipeline helpers, prompt targets, store client, runner, schedulers
+  server/               node --test for the self-hosted server
+  smoke/smoke.js        end-to-end test of the built page against a mocked Claude runtime
+  smoke/smoke-selfhosted.js  the same page against a real self-hosted server
   fixtures/             sample OpenAlex work and paper records
-docs/                   architecture, new-topic walkthrough, install, update and add-radar prompts
+docs/                   architecture, new-topic walkthrough, install, update and add-radar prompts, self-hosted and Codex guides
 data/                   put exported JSON snapshots here (git-ignored unless you add them)
 .env.example            OpenAlex key and contact email for running the CLI locally (copy to .env, git-ignored)
 LICENSE                 Apache-2.0
@@ -248,6 +255,19 @@ cd pipeline && python -m radar.openalex search "analytic provenance" --since 202
 The page's data lives in the database, not in the HTML, so republishing never loses papers. Only pass `capabilities` (from `site/capabilities.json`) when you change what the page declares.
 
 **Changing the scan.** Edit `pipeline/scan-prompt.md`, run `python pipeline/render_prompt.py`, and ask Claude to update the scheduled task's prompt with the output. A task that runs on your computer must be approved from a conversation linked to that computer.
+
+## Run it without Claude (experimental)
+
+The page, the scan method and the data model are not tied to Claude. A small server (`infra/app`) can host the page and its database on your machine, and any agent CLI with a shell can run the scan, with Codex as the documented one. Scheduling is cron, Windows Task Scheduler or a Codex automation instead of a Claude scheduled task. The Claude setup is unchanged and stays the default.
+
+```bash
+python site/build.py && node infra/app/server.js     # http://127.0.0.1:8787
+python pipeline/radar_cli.py init                     # first-run documents
+python pipeline/run_scan.py --radar main              # one scan with the agent from config/site.json
+python pipeline/schedulers.py --kind cron             # entries to schedule it
+```
+
+It is single-user and has no browser sources that need your sign-in. Details and a verification checklist: [docs/self-hosted.md](docs/self-hosted.md) and [docs/codex-guide.md](docs/codex-guide.md).
 
 ## Local mirror (optional)
 

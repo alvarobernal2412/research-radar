@@ -9,6 +9,8 @@
 | Scan (scheduled task) | A fresh Claude session, on a schedule or on Run now | Follows `pipeline/scan-prompt.md`: reads the database, searches, analyses, writes, and reports. |
 | Pipeline helpers (`pipeline/radar`) | Your machine, tests, or the scan as a reference | Encode the OpenAlex mapping, de-duplication and scoring rules so they can be tested. |
 
+The first three rows are the Claude deployment. The same roles can be filled without Claude (see [Hosts and targets](#hosts-and-targets)).
+
 ## Radars
 
 One artifact can hold several radars, each a separate research topic. `radars/<id>` is the registry (name, tagline, weekday, time, task id, archived). The first radar, `main`, keeps its documents at the database root, so an install made before multiple radars needs no migration; every other radar keeps the same documents under `radars/<id>/` (for example `radars/nlp/papers/<id>`, `radars/nlp/meta/topic`). The page works out the prefix in one helper (`rp()` in `site/src/js/00-core.js`) and `attachRadar()` in `90-boot.js` drops the previous radar's listeners and state when you switch. Links to a radar other than the first carry its id (`#nlp~paper.<id>`).
@@ -47,3 +49,20 @@ Author-stated limitations and future work are `null` (unknown) unless the full t
 ## Why one HTML file
 
 The artifact host serves a single page and allows scripts only from a few CDNs. The sources stay split for version control; `site/build.py` concatenates them in a fixed order into one strict-mode scope, so the parts share helpers without globals. d3 loads eagerly. pdf.js loads only when you drop a PDF, and runs on the main thread because the page can't start cross-origin workers.
+
+## Hosts and targets
+
+Three seams keep the Claude specifics in one place each.
+
+**Page host.** The page asks for capabilities (`db`, `user`, `sample`, `mcp`, `downloads`) through `rtUse()` in `site/src/js/01-runtime.js`. It uses `window.claude` when the Claude artifact host provides it, otherwise `window.radarRuntime`, which the self-hosted server injects (`infra/app/runtime.js`). `sample` and `mcp` exist on the self-hosted runtime only when the server has `ASK_COMMAND` / `SCAN_COMMAND`, as `/api/capabilities` reports. Errors carry the same `code`s on both, so the page has one message table. "Run now" identifies the scan by the scheduled task's id on Claude and by the radar id on the self-hosted server.
+
+**Database.** Both backends address documents by the same paths. On the server a store driver (`infra/app/store`) keeps them in JSON files or Postgres, with the two conditional writes the scan needs: `If-None-Match: *` creates the scan lock only if it is absent, `If-Match: <version>` writes only the version that was read.
+
+**Scan.** `pipeline/scan-prompt.md` holds one method with `{{#claude}}` and `{{#agent}}` blocks where the tool differs: ArtifactData, ToolSearch, Claude in Chrome and SendUserMessage on one side, `pipeline/radar_cli.py` and plain web access on the other. `render_prompt.py --target` picks the blocks, the viewer id (`me` on Claude, `local` self-hosted) and an optional note from `pipeline/targets/`. `accessMode` keeps the values the site already knows. `run_scan.py` starts the agent CLI with the rendered prompt; cron, Task Scheduler, a Codex automation (`schedulers.py` prints each) or the server's "Run now" call it.
+
+| | Claude | Self-hosted |
+|---|---|---|
+| Host | artifact (`window.claude`) | `infra/app/server.js` (`window.radarRuntime`) |
+| Storage | artifact database | JSON files or Postgres |
+| Scan | scheduled task, target `claude` | `run_scan.py`, target `codex` / `agent` |
+| Users | sharing and roles | one local editor |
