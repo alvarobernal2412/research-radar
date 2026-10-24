@@ -8,6 +8,9 @@ __pycache__/
 .pytest_cache/
 .venv/
 
+# self-hosted server data: documents, snapshots, scan logs and your API key
+data/selfhost/
+
 # data exports can contain abstracts you may not want public; commit them deliberately
 data/*.json
 !data/.gitkeep

@@ -1,7 +1,8 @@
-// Minimal window.claude runtime for the local mirror: db (polling), a single
-// local user, and downloads. `sample` and `mcp` are intentionally absent: the
-// page treats them as unavailable, so topic proposals and "Run now" need the
-// Claude artifact.
+// Host runtime for the self-hosted server: the capabilities the page asks for through
+// rtUse() (site/src/js/01-runtime.js), backed by the server's HTTP API. db polls; user is a
+// single local editor; downloads saves in the browser. `sample` (topic proposals) and `mcp`
+// ("Run now") exist only when the server has ASK_COMMAND / SCAN_COMMAND configured, as
+// reported by /api/capabilities; otherwise the page shows them as unavailable.
 (function () {
   const POLL_MS = 3000;
   const UID = "local";
@@ -64,6 +65,25 @@
     return q;
   };
 
+  // Errors carry the same `code`s the Claude host uses, so the page has one message table.
+  const post = async (url, body, signal) => {
+    let r;
+    try { r = await fetch(url, { method: "POST", body: JSON.stringify(body), signal }); } catch (e) {
+      throw Object.assign(new Error(e.message), { code: e && e.name === "AbortError" ? "cancelled" : "tool_error" });
+    }
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw Object.assign(new Error(j.error || "request failed (" + r.status + ")"), { code: j.code === "busy" ? "tool_error" : j.code || "tool_error" });
+    return j;
+  };
+  const sample = async () => { throw Object.assign(new Error("use sample.json"), { code: "tool_error" }); };
+  sample.json = async (prompt, opt) => (await post("/api/ask", { prompt }, opt && opt.signal)).json;
+  const mcp = {
+    callTool: async (_server, tool, input) => {
+      if (tool !== "fire_trigger") throw Object.assign(new Error("unsupported tool: " + tool), { code: "tool_error" });
+      return post("/api/scan", { radar: input.trigger_id, text: input.text });
+    },
+  };
+
   const caps = {
     db: { doc, collection: col },
     user: { canEdit: async () => true, id: async () => UID, isOwner: () => true },
@@ -74,5 +94,13 @@
       return { status: "saved" };
     } },
   };
-  window.claude = { use: async (n) => caps[n] || null };
+  let server = null;
+  const info = () => server || (server = fetch("/api/capabilities").then((r) => r.json()).catch(() => ({})));
+  window.radarRuntime = {
+    use: async (n) => {
+      if (n === "sample") return (await info()).ask ? sample : null;
+      if (n === "mcp") return (await info()).scan ? mcp : null;
+      return caps[n] || null;
+    },
+  };
 })();

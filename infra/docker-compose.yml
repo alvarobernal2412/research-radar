@@ -25,6 +25,9 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgres://radar:${POSTGRES_PASSWORD}@db:5432/radar
+      RADAR_STORE: postgres
+      HOST: 0.0.0.0
+      PORT: "8080"
       FILES_DIR: /data/files
       PAGE_FILE: /app/radar.html
     ports:

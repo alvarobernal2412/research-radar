@@ -1,9 +1,11 @@
 // Turn an export (format research-radar/v1) or a directory tree of
 // <collection>/<doc>.json files (as ArtifactData's out_dir writes) into
-// {path: data} documents, and upsert them into Postgres.
+// {path: data} documents, and upsert them into the store (files or Postgres, see store/index.js).
 //   node import.js <export.json | dir>
 const fs = require("fs");
 const path = require("path");
+const { split } = require("./store/common");
+const { createStore } = require("./store");
 
 // The first radar ("main") lives at the root; every other radar under radars/<id>/.
 const RADAR_ID = /^[a-z0-9][a-z0-9-]{1,29}$/;
@@ -43,46 +45,19 @@ function toDocs(input) {
   throw new Error('not a research-radar/v1 export (expected {"format":"research-radar/v1",...})');
 }
 
-function split(p) {
-  const i = p.lastIndexOf("/");
-  return { collection: p.slice(0, i), id: p.slice(i + 1) };
-}
-
-async function upsert(pool, docs) {
-  const entries = Object.entries(docs).filter(([p]) => p.includes("/"));
-  const c = await pool.connect();
-  try {
-    await c.query("BEGIN");
-    for (const [p, data] of entries) {
-      const { collection, id } = split(p);
-      await c.query(
-        `INSERT INTO docs (path, collection, id, data) VALUES ($1,$2,$3,$4)
-         ON CONFLICT (path) DO UPDATE SET data = EXCLUDED.data, version = docs.version + 1, updated_at = now()`,
-        [p, collection, id, data]
-      );
-    }
-    await c.query("COMMIT");
-  } catch (e) {
-    await c.query("ROLLBACK");
-    throw e;
-  } finally {
-    c.release();
-  }
-  return entries.length;
-}
+const upsert = (store, docs) => store.upsertMany(docs);
 
 module.exports = { toDocs, fromDir, split, upsert, prefixOf, RADAR_ID, ROOT_RADAR };
 
 if (require.main === module) {
   (async () => {
-    const { Pool } = require("pg");
     const src = process.argv[2];
     if (!src) { console.error("usage: node import.js <export.json | dir>"); process.exit(2); }
-    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-    await pool.query(fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8"));
+    const store = createStore();
+    await store.init();
     const st = fs.statSync(src);
     const docs = st.isDirectory() ? fromDir(src) : toDocs(JSON.parse(fs.readFileSync(src, "utf8")));
-    console.log(`imported ${await upsert(pool, docs)} documents`);
-    await pool.end();
+    console.log(`imported ${await upsert(store, docs)} documents`);
+    await store.close();
   })().catch((e) => { console.error(e.message); process.exit(1); });
 }
