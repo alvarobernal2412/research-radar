@@ -8,8 +8,8 @@ const SCAN_MODES=[
   ["rescore","Rescore stored papers against the current topic, then look for new ones"],
   ["full","Start over: search the whole lookback period again"]
 ];
-async function writeControl(patch){const body=Object.assign({},S.control||{},patch,{updatedAt:new Date().toISOString()});await S.db.doc(rp("meta/control")).set(body);S.control=body;renderRunStat();return body}
-async function writeConfig(patch){const body=Object.assign({},S.config||{},patch,{updatedAt:new Date().toISOString()});await S.db.doc(rp("meta/config")).set(body);S.config=body;return body}
+async function writeControl(patch){const rid=S.rid,body=Object.assign({},S.control||{},patch,{updatedAt:new Date().toISOString()});await S.db.doc(rp("meta/control")).set(body);if(S.rid===rid){S.control=body;renderRunStat()}return body}
+async function writeConfig(patch){const rid=S.rid,body=Object.assign({},S.config||{},patch,{updatedAt:new Date().toISOString()});await S.db.doc(rp("meta/config")).set(body);if(S.rid===rid)S.config=body;return body}
 function paperCounts(){
   const P=S.papers;const starred=P.filter(p=>(S.marks[p.id]||{}).star).length;
   const inc=P.filter(p=>paperCompleteness(p).level!=="complete").length;const stale=P.filter(p=>paperCompleteness(p).stale).length;
@@ -53,10 +53,12 @@ function confirmBox(){
 }
 async function removeSelected(){
   const c=TP.confirm;if(!c)return;TP.busy=true;let done=0,failed=0;
-  const total=c.ids.length+(c.venues?S.confs.length+S.jours.length:0);
+  const P=rp("papers/"),C=rp("conferences/"),J=rp("journals/"),confs=c.venues?S.confs.slice():[],jours=c.venues?S.jours.slice():[];
+  const total=c.ids.length+confs.length+jours.length;
   const step=async path=>{try{await S.db.doc(path).delete();done++}catch(e){failed++}setMsg("maint",`Deleting… ${done+failed} of ${total}`)};
-  for(const id of c.ids)await step(rp("papers/"+id));
-  if(c.venues){for(const v of S.confs.slice())await step(rp("conferences/"+v.id));for(const v of S.jours.slice())await step(rp("journals/"+v.id))}
+  for(const id of c.ids)await step(P+id);
+  for(const v of confs)await step(C+v.id);
+  for(const v of jours)await step(J+v.id);
   TP.busy=false;TP.confirm=null;
   renderTopic();setMsg("maint",failed?`Deleted ${done}; ${failed} couldn't be deleted (you may not have permission).`:`Deleted ${done} record${done===1?"":"s"}.`,failed?"err":"ok");
 }

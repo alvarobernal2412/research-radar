@@ -2,7 +2,7 @@
 function route(){
   let h=(location.hash||"").replace(/^#/,"");let rid=MAIN;
   if(!h)rid=lsGet("pr-radar",MAIN);
-  else{const t=h.indexOf("~");if(t>0){rid=h.slice(0,t);h=h.slice(t+1)}}
+  else{const t=h.indexOf("~");if(t>0&&RADAR_ID.test(h.slice(0,t))){rid=h.slice(0,t);h=h.slice(t+1)}}
   if(!RADAR_ID.test(rid)||(S.radarsLoaded&&!radarInfo(rid)))rid=MAIN;
   if(!h)return{rid,view:"contributions"};
   const i=h.indexOf(".");if(i>0)return{rid,view:h.slice(0,i),id:h.slice(i+1)};return{rid,view:h};
@@ -10,6 +10,7 @@ function route(){
 let lastKey="";
 function render(force){
   const r=route();
+  if(r.rid!==S.rid&&(TP.busy||TP.derive.busy)){location.hash=H(r.view,r.id);setMsg("maint","Wait for the current operation to finish before switching radars.","err");return}
   if(r.rid!==S.rid){attachRadar(r.rid);force=true}
   const key=r.rid+"|"+r.view+"|"+(r.id||"");
   document.querySelectorAll("nav.tabs a").forEach(a=>{const t=a.dataset.tab;const on=t===r.view||(r.view==="conf"&&t==="conferences")||(r.view==="journal"&&t==="journals")||(r.view==="paper"&&t==="contributions");if(on)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
