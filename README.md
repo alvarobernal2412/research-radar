@@ -1,6 +1,6 @@
 # Research Radar
 
-A literature radar for one research topic. A weekly Claude scan finds new papers, scores how close each one is to your topic, and keeps a website up to date. The site has five pages:
+Literature radars for your research topics, in one Claude artifact. Each radar has its own topic and a weekly Claude scan that finds new papers and scores how close each one is to that topic. Pick a radar from the menu bar and the same five pages show its data. Scans run on different weekdays so no source sees repeated requests from your IP. The site has five pages (per radar):
 
 - **Conferences:** a CORE tier list, deadlines for every track, the next edition and the one after, and committees with topic-related people flagged.
 - **Journals:** journals ordered by impact factor or topic fit, with special issues and editorial boards.
