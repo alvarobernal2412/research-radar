@@ -52,7 +52,7 @@ async function snapshot(label) {
     fs.writeFileSync(f, JSON.stringify(await exportAll(id), null, 1));
     files.push(f);
   }
-  return files[0];
+  return files;
 }
 
 const server = http.createServer(async (req, res) => {
@@ -98,7 +98,7 @@ const server = http.createServer(async (req, res) => {
       const docs = toDocs(JSON.parse(await readBody(req)));
       const before = await snapshot("pre-import");
       const n = await upsert(pool, docs);
-      return json(res, 200, { imported: n, snapshot: path.basename(before) });
+      return json(res, 200, { imported: n, snapshot: path.basename(before[0]), snapshots: before.map((f) => path.basename(f)) });
     }
     if (req.method === "GET" && u.pathname === "/api/export") {
       const radar = u.searchParams.get("radar") || ROOT_RADAR;
