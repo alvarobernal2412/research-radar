@@ -61,6 +61,8 @@ def build(title: str, out: Path) -> Path:
     if "/*@VENDOR_LAZY@*/{}" not in scripts:
         raise SystemExit("VENDOR_LAZY placeholder missing from the scripts")
     scripts = scripts.replace("/*@VENDOR_LAZY@*/{}", lazy)
+    if '/*@ADD_RADAR_PROMPT@*/""' not in scripts:
+        raise SystemExit("ADD_RADAR_PROMPT placeholder missing from the scripts")
     scripts = scripts.replace('/*@ADD_RADAR_PROMPT@*/""', add_radar_prompt())
     html = (
         template.replace("{{TITLE}}", title)
