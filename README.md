@@ -29,7 +29,7 @@ Nothing in the code is tied to one topic. To use it for another topic, see [docs
 
 You can track several topics side by side. The name in the menu bar is a dropdown: pick a radar and every page (Conferences, Journals, Contributions, Network, Topic & scans) shows that radar's data. Each radar has its own topic, sources, papers, venues, scan log and scheduled scan. Your API keys and your name are shared.
 
-- **Add one:** choose *New radar…* in the dropdown, fill in a name, tagline and topic sentence, and paste the prompt it gives you into Claude Code. It is the [add-radar prompt](docs/add-radar-prompt.md): it asks a few multiple-choice questions, picks the weekday, creates the scheduled task and registers the radar. A page cannot create scheduled tasks itself, which is why this step runs in Claude Code.
+- **Add one:** choose *New radar…* in the dropdown, fill in a name, a short description and a topic sentence, and paste the prompt it gives you into Claude Code. It is the [add-radar prompt](docs/add-radar-prompt.md): it asks a few multiple-choice questions, picks the weekday, creates the scheduled task and registers the radar. A page cannot create scheduled tasks itself, which is why this step runs in Claude Code.
 - **Different days on purpose:** every radar scans on its own weekday, chosen to be as far as possible from the others (Sunday, then Wednesday, then Friday, and so on), so no source is queried twice in one day from your IP address. With more than seven radars a weekday is shared at hours far apart. A scan also waits if another radar's scan is still running, which covers *Run now* pressed at a bad moment.
 - **Your first radar is untouched.** It keeps its data at the root of the database, its links and its scheduled task, and appears in the dropdown as the first radar. Other radars live under `radars/<id>/` and use links like `#nlp~conferences`.
 - **Archive** a radar from its Topic & scans page to move it out of the main list. Its data is kept.
@@ -60,7 +60,7 @@ Call 1:
 
 Call 2:
 5. Local mirror (docker compose in infra/): No (Recommended) / Yes.
-6. Site name and a short tagline for my topic: offer one or two suggestions
+6. Site name and a short description (stored as "tagline") for my topic: offer one or two suggestions
    (for example "Process Radar" / "your topic in a few words") and let me type
    my own under Other.
 7. My name exactly as it appears on papers, so the network marks me: use my

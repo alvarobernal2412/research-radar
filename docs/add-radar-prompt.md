@@ -2,7 +2,7 @@
 
 One prompt that adds another radar (another research topic) to a Research Radar you already installed, and schedules its weekly scan. Every radar has its own topic, papers, venues and scan log, and the radars share one artifact: the menu bar has a dropdown to switch between them.
 
-The site's **New radar…** entry in that dropdown fills in the name, tagline and topic for you and gives you this prompt. You can also paste it by hand after editing the three values at the top.
+The site's **New radar…** entry in that dropdown fills in the name, description and topic for you and gives you this prompt. You can also paste it by hand after editing the three values at the top.
 
 Each radar scans on its own weekday, chosen to be as far as possible from the weekdays of the others, so no source (OpenAlex, DBLP, IEEE, and so on) is queried twice in one day from your IP address. A scan also refuses to start while another radar's scan is running.
 
@@ -13,7 +13,7 @@ change the data of my other radars.
 New radar
 - Name: {{RADAR_NAME}}
 - Id: {{RADAR_ID}}
-- Tagline: {{TAGLINE}}
+- Description (stored as "tagline"): {{TAGLINE}}
 - Topic: {{TOPIC}}
 Radars that already exist: {{EXISTING}}
 

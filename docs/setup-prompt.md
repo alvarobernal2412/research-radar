@@ -24,7 +24,7 @@ Call 1:
 
 Call 2:
 5. Local mirror (docker compose in infra/): No (Recommended) / Yes.
-6. Site name and a short tagline for my topic: offer one or two suggestions
+6. Site name and a short description (stored as "tagline") for my topic: offer one or two suggestions
    (for example "Process Radar" / "your topic in a few words") and let me type
    my own under Other.
 7. My name exactly as it appears on papers, so the network marks me: use my
