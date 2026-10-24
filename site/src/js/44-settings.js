@@ -49,7 +49,7 @@ async function toggleSource(id,on){
   catch(e){setMsg("src","Couldn't save. You may not have permission to change this site.","err");rerenderSources()}
 }
 async function exportData(){
-  let dl=null;try{dl=await window.claude.use("downloads")}catch(e){}
+  let dl=null;try{dl=await rtUse("downloads")}catch(e){}
   if(!dl){setMsg("export","Downloads aren't available in this view.","err");return}
   const strip=d=>{const o=Object.assign({},d);return o};
   const data={format:"research-radar/v1",exportedAt:new Date().toISOString(),site:{name:siteName(),radar:S.rid},topic:S.topic,config:S.config,run:S.run,control:S.control,papers:S.papers.map(strip),conferences:S.confs.map(strip),journals:S.jours.map(strip)};

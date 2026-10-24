@@ -26,7 +26,7 @@ function maintenanceSection(){
   <form class="panel" onsubmit="return false"><h3>Run a scan</h3>
     <fieldset class="radios"><legend class="sr">What the scan should do</legend>${SCAN_MODES.map(([v,l])=>`<label class="chk"><input type="radio" name="tp-mode" value="${v}"${v===defMode?" checked":""}> ${esc(l)}</label>`).join("")}</fieldset>
     <div class="fld" style="max-width:220px"><label for="tp-years">Lookback for a full search (years)</label><input type="number" id="tp-years" min="1" max="15" value="${years}"></div>
-    <div class="btnrow"><button type="button" class="btn primary" data-tp="run-now"${cfg().triggerId?"":" disabled title=\"No scheduled task is linked to this site\""}>Run now</button><button type="button" class="btn" data-tp="run-queue">Queue for the next scheduled scan</button></div>
+    <div class="btnrow"><button type="button" class="btn primary" data-tp="run-now"${scanTrigger()?"":" disabled title=\"No scheduled task is linked to this site\""}>Run now</button><button type="button" class="btn" data-tp="run-queue">Queue for the next scheduled scan</button></div>
     <p class="muted" style="margin:0;font-size:.8rem">Run now starts the scan in the background through your Claude account. It usually takes 20–60 minutes; the page updates as results arrive.</p>
   </form>
   <form class="panel" onsubmit="return false"><h3>Remove papers</h3>
@@ -75,9 +75,11 @@ async function requestScan(runNow){
   if(r.ok){try{await writeControl({firedAt:new Date().toISOString()})}catch(e){}TP.changed=null;renderTopic();setMsg("maint","Scan started. It runs in the background; new results appear here as they're written.","ok")}
   else{renderTopic();setMsg("maint",r.msg+" The request stays queued for the next scheduled scan.","err")}
 }
+// What identifies the scan to start: the scheduled task on Claude, the radar id on the self-hosted server.
+function scanTrigger(){return cfg().triggerId||(rtKind()==="self-hosted"?S.rid:"")}
 async function fireScan(text){
-  const trig=cfg().triggerId;if(!trig)return{ok:false,msg:"No scheduled task is linked to this site."};
-  let mcp=null;try{mcp=await window.claude.use("mcp")}catch(e){}
+  const trig=scanTrigger();if(!trig)return{ok:false,msg:"No scheduled task is linked to this site."};
+  let mcp=null;try{mcp=await rtUse("mcp")}catch(e){}
   if(!mcp)return{ok:false,msg:"Starting scans isn't available in this view."};
   try{await mcp.callTool("Claude Code Remote","fire_trigger",{trigger_id:trig,text},{cache:false});return{ok:true}}
   catch(e){

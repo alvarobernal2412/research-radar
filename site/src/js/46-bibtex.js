@@ -56,7 +56,7 @@ function updateSelBar(){
 function setSelMsg(text,kind){const el=document.getElementById("selmsg");if(el){el.textContent=text;el.className="tpmsg"+(kind?" "+kind:"")}}
 async function exportBibtex(){
   const list=selectedPapers();if(!list.length)return;
-  let dl=null;try{dl=await window.claude.use("downloads")}catch(e){}
+  let dl=null;try{dl=await rtUse("downloads")}catch(e){}
   if(!dl){setSelMsg("Downloads aren't available in this view.","err");return}
   const slug=siteName().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"radar";
   try{await dl.save({filename:`${slug}-selection-${today()}.bib`,data:toBibtex(list)});setSelMsg(`Saved ${list.length} entr${list.length===1?"y":"ies"}.`,"ok")}

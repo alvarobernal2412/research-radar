@@ -29,7 +29,7 @@ function attachRadar(rid){
 render(true);
 (async()=>{
   let db=null;
-  try{db=window.claude&&window.claude.use?await window.claude.use("db"):null}catch(e){db=null}
+  try{db=await rtUse("db")}catch(e){db=null}
   if(!db){S.dbState="none";render(true);return}
   S.db=db;S.dbState="ok";
   db.collection("radars").onSnapshot(s=>{
@@ -37,7 +37,7 @@ render(true);
     if(route().rid!==S.rid)render(true);else schedule();
   },()=>{S.radarsLoaded=true});
   try{
-    const user=await window.claude.use("user");
+    const user=await rtUse("user");
     if(user){S.canEdit=!!(await user.canEdit());S.uid=await user.id();
       if(S.uid){
         db.doc(`data/users/${S.uid}/settings`).onSnapshot(d=>{S.settings=d.exists?Object.assign({},d.data()):{};S.loaded.settings=true;if(route().view==="topic"&&!TP.keyEdit)rerenderSources()},()=>{S.loaded.settings=true});

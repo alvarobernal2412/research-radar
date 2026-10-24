@@ -117,7 +117,7 @@ async function proposeTopic(){
   const docs=D.docs.filter(d=>d.state==="ok");
   const pasted=D.text.split(/\n\s*\n/).map(s=>s.trim()).filter(s=>s&&!/^10\.\d{4,9}\/\S+$/.test(s));
   if(!docs.length&&!pasted.length){setMsg("derive","Add at least one PDF or pasted abstract. DOIs alone need the scan.","err");return}
-  let sample=null;try{sample=await window.claude.use("sample")}catch(e){}
+  let sample=null;try{sample=await rtUse("sample")}catch(e){}
   if(!sample){setMsg("derive","Asking Claude isn't available in this view. Use “Let the next scan derive it” instead.","err");return}
   const papers=[...docs.map(d=>`TITLE: ${d.title}\nTEXT: ${d.text.slice(0,7000)}`),...pasted.map(p=>`TEXT: ${p.slice(0,7000)}`)];
   const current=D.useCurrent&&S.topic&&arr(S.topic.themes).length?`\nThe researcher's CURRENT topic profile, to refine rather than replace (keep themes that still fit, rename or merge where the papers suggest it):\n${JSON.stringify({description:S.topic.description,themes:S.topic.themes,exclude:S.topic.exclude})}\n`:"";

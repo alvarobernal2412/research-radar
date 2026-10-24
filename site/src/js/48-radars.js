@@ -75,7 +75,7 @@ async function rmCopy(){
   catch(e){ta.focus();ta.select();rmMsg("Press Ctrl+C (or ⌘C) to copy the selected text.")}
 }
 async function rmSave(){
-  let dl=null;try{dl=await window.claude.use("downloads")}catch(e){}
+  let dl=null;try{dl=await rtUse("downloads")}catch(e){}
   if(!dl){rmMsg("Downloads aren't available in this view. Use Copy prompt.","err");return}
   const f=RM.modal;
   try{await dl.save({filename:`add-radar-${slugify(f.name)}.txt`,data:rmPrompt(f)});rmMsg("Saved.","ok")}
