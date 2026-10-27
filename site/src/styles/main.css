@@ -115,6 +115,16 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .prow{display:grid;grid-template-columns:22px 52px 1fr auto;gap:14px;padding:14px 16px;align-items:start}
 .prow+.prow{border-top:1px solid var(--line)}
 .prow.read .ptitle{color:var(--muted)}
+.prow.hidden-p{opacity:.55}
+.msel{position:relative}
+.msel summary{font-size:.9rem;padding:7px 28px 7px 9px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);cursor:pointer;list-style:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:relative}
+.msel summary::-webkit-details-marker{display:none}
+.msel summary::after{content:"";position:absolute;right:11px;top:50%;width:6px;height:6px;border:solid var(--muted);border-width:0 1.5px 1.5px 0;transform:translateY(-70%) rotate(45deg)}
+.msel.on summary{border-color:var(--accent);color:var(--accent)}
+.mselbox{position:absolute;z-index:20;left:0;min-width:100%;max-width:min(360px,90vw);max-height:260px;overflow:auto;margin-top:4px;padding:6px;border:1px solid var(--line);border-radius:5px;background:var(--surface);box-shadow:0 6px 18px rgba(0,0,0,.12)}
+.mselbox label{display:flex;gap:8px;align-items:center;padding:4px 6px;border-radius:4px;font-size:.86rem;letter-spacing:0;text-transform:none;font-weight:400;color:var(--ink);cursor:pointer;white-space:nowrap}
+.mselbox label:hover{background:var(--sunk)}
+.mselbox input{accent-color:var(--accent)}
 .psel{display:flex;padding-top:4px;cursor:pointer}
 .psel input{accent-color:var(--accent);margin:0;width:16px;height:16px;cursor:pointer}
 .selbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}

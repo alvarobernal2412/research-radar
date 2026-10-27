@@ -7,7 +7,7 @@ function attachRadar(rid){
   S.rid=rid;lsSet("pr-radar",rid);
   Object.assign(S,{confs:[],jours:[],papers:[],topic:null,run:null,config:null,control:null,marks:{},sel:new Set(),shown:[],editingTopic:false});
   Object.assign(S.loaded,{c:false,j:false,p:false,m:false});
-  Object.assign(F,F_DEFAULT,lsGet(rkey("pr-filters"),{}));
+  Object.assign(F,F_DEFAULT,lsGet(rkey("pr-filters"),{}));normFilters();
   S.jSort=lsGet(rkey("pr-jsort"),"if");
   NET.hidden=new Set(lsGet(rkey("pr-net-hidden"),[]));NET.q="";NET.sig=null;NET.graph=null;NET.pos=new Map();NET.sel=null;NET.fitted=false;
   topicReset();

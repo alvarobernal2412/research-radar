@@ -47,8 +47,11 @@ function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function srcList(s){s=arr(s);if(!s.length)return"";return `<div class="panel"><div class="eyebrow">Sources</div><div class="srcs">${s.map(u=>{const url=typeof u==="string"?u:u.url;return /^https?:\/\//.test(url||"")?`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(url.replace(/^https?:\/\//,"").slice(0,70))}</a>`:`<span>${esc(url)}</span>`}).join("")}</div></div>`}
 
 /* ---------- filters ---------- */
-const F_DEFAULT={q:"",minAff:0,kind:"all",type:"all",venue:"all",theme:"all",db:"all",comp:"all",yearFrom:"",yearTo:"",onlyNew:false,onlyStar:false,hideRead:false,sort:"affinity"};
+const F_DEFAULT={q:"",minAff:0,kind:[],type:[],venue:[],theme:[],db:[],comp:"all",yearFrom:"",yearTo:"",onlyNew:false,onlyStar:false,hideRead:false,showHidden:false,sort:"affinity"};
 const F=Object.assign({},F_DEFAULT);
+// Multi-select filters hold arrays (empty = no filter). Older saved filters held one string ("all" = none).
+const F_MULTI=["kind","type","venue","theme","db"];
+function normFilters(){for(const k of F_MULTI){const v=F[k];F[k]=Array.isArray(v)?v:(v&&v!=="all"?[v]:[])}}
 /* ---------- radars ---------- */
 // The first radar ("main") stays at the database root and keeps the old link and storage names;
 // every other radar lives under radars/<id>/ and puts its id in links as #<id>~view.id.
