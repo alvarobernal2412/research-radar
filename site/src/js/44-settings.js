@@ -19,9 +19,26 @@ function sourcesSection(){
     <div data-msg="src">${msgLine("src")}</div></form></div>`;
   return h;
 }
+// One entry per scan date: the history record (status, access, notes) plus the papers whose
+// discoveredAt is that date. Papers from a date with no history record still get an entry.
+function scanTimelineSection(){
+  const hist=arr((S.run||{}).history);
+  const found={};for(const p of S.papers){const d=String(p.discoveredAt||"").slice(0,10)||"unknown";(found[d]=found[d]||[]).push(p)}
+  const dates=[...new Set([...hist.map(r=>String(r.date||"").slice(0,10)).filter(Boolean),...Object.keys(found)])].sort((a,b)=>a==="unknown"?1:b==="unknown"?-1:b.localeCompare(a));
+  let h=`<div class="sechead"><h2>Scan timeline</h2><span class="muted" style="font-size:.8rem">What each scan found</span></div>`;
+  if(!dates.length)return h+`<div class="empty"><span>No scans have run yet.</span></div>`;
+  h+=`<ol class="tline">`+dates.map(d=>{
+    const recs=hist.filter(r=>String(r.date||"").slice(0,10)===d),rec=recs[recs.length-1]||{};
+    const L=(found[d]||[]).slice().sort((a,b)=>(num(b.affinity)||0)-(num(a.affinity)||0));
+    const reported=recs.reduce((n,r)=>n+(num(r.newPapers)||0),0);
+    const item=p=>`<li><a href="${H("paper",p.id)}">${esc(p.title||"Untitled")}</a><span class="muted"> · ${esc(p.venueName||"Unknown venue")}${p.year?" "+esc(p.year):""}${num(p.affinity)!=null?` · ${Math.round(num(p.affinity))}%`:""}</span></li>`;
+    const open=TP.tlOpen&&TP.tlOpen.has(d)?" open":"";
+    return `<li class="tl-item"><span class="tl-dot${rec.status==="failed"?" bad":""}" aria-hidden="true"></span><div class="tl-head"><b>${d==="unknown"?"Date unknown":fmtDate(d)}</b>${rec.status?`<span class="pill${rec.status==="ok"?" acc":rec.status==="failed"?" crit":" amb"}">${esc(rec.status)}</span>`:""}<span class="muted">${recs.length?`${reported} new reported · `:""}${L.length} paper${L.length===1?"":"s"} stored</span></div>${rec.note?`<p class="muted tl-note">${esc(rec.note)}</p>`:""}${L.length?`<details class="tl-list" data-tl="${esc(d)}"${open}><summary>Show papers</summary><ul>${L.map(item).join("")}</ul></details>`:""}</li>`}).join("")+`</ol>`;
+  return h;
+}
 function scanLogSection(){
   const run=S.run||{};const hist=arr(run.history);
-  let h=`<div class="sechead"><h2>Scan log</h2><span class="muted" style="font-size:.8rem">Runs ${esc(scheduleText())}</span></div>`;
+  let h=`<div class="tlwrap">${scanTimelineSection()}</div><div class="sechead"><h2>Scan log</h2><span class="muted" style="font-size:.8rem">Runs ${esc(scheduleText())}</span></div>`;
   if(run.lastRunAt){h+=`<div class="panel"><dl class="kv"><dt>Last scan</dt><dd>${fmtDate(String(run.lastRunAt).slice(0,10))}</dd><dt>Status</dt><dd>${esc(run.status||"—")}</dd><dt>Access</dt><dd style="font-family:var(--f-body)">${esc(run.accessMode||"—")}</dd>${run.counts?Object.entries(run.counts).map(([k,v])=>`<dt>${esc(k.replace(/([A-Z])/g," $1").toLowerCase())}</dt><dd>${esc(v)}</dd>`).join(""):""}</dl>${run.summary?`<p style="margin:0">${esc(run.summary)}</p>`:""}${arr(run.issues).length?`<div class="notice"><b>Issues:</b> ${arr(run.issues).map(esc).join(" · ")}</div>`:""}</div>`}
   else h+=`<div class="empty"><span>No scans have run yet.</span></div>`;
   if(hist.length)h+=`<div class="tblwrap"><table><thead><tr><th>Date</th><th>Status</th><th>Access</th><th>New papers</th><th>Notes</th></tr></thead><tbody>${hist.slice().reverse().map(r=>`<tr><td class="num">${fmtDate(r.date)}</td><td>${esc(r.status||"")}</td><td>${esc(r.accessMode||"")}</td><td class="num">${esc(r.newPapers??"")}</td><td style="font-size:.82rem">${esc(r.note||"")}</td></tr>`).join("")}</tbody></table></div>`;
@@ -71,6 +88,10 @@ app.addEventListener("click",e=>{
   else if(a==="stop"){if(TP.derive.ctl)TP.derive.ctl.abort()}
   else if(a==="queue-derive")queueDerive();
   else if(a==="rmdoc"){TP.derive.docs.splice(Number(b.dataset.i),1);rerenderTopicSection()}
+  else if(a==="rename"){TP.renaming=true;TP.dirty=true;rerenderMaint();const i=document.getElementById("tp-rname");if(i)i.focus()}
+  else if(a==="rename-cancel"){TP.renaming=false;TP.dirty=false;rerenderMaint()}
+  else if(a==="rename-save")renameRadar();
+  else if(a==="radar-stop"||a==="radar-resume"||a==="radar-delete")radarActionDialog(a.slice(6));
   else if(a==="archive")setArchived(true);
   else if(a==="restore")setArchived(false);
   else if(a==="run-now")requestScan(true);
@@ -91,6 +112,8 @@ app.addEventListener("change",e=>{
   if(/^tp-rm/.test(e.target.id)){rmSelection();if(TP.confirm){TP.confirm=null;const m=document.getElementById("tp-maint");if(m)m.innerHTML=maintenanceSection()}}
 });
 app.addEventListener("input",e=>{if(route().view==="topic"&&e.target.matches("input,textarea"))TP.dirty=true});
+// <details> toggle doesn't bubble: capture it so a live refresh keeps the open timeline entries open.
+app.addEventListener("toggle",e=>{const d=e.target.closest&&e.target.closest("details[data-tl]");if(!d)return;TP.tlOpen=TP.tlOpen||new Set();if(d.open)TP.tlOpen.add(d.dataset.tl);else TP.tlOpen.delete(d.dataset.tl)},true);
 app.addEventListener("dragover",e=>{const z=e.target.closest&&e.target.closest("#tp-drop");if(z){e.preventDefault();z.classList.add("over")}});
 app.addEventListener("dragleave",e=>{const z=e.target.closest&&e.target.closest("#tp-drop");if(z)z.classList.remove("over")});
 app.addEventListener("drop",e=>{const z=e.target.closest&&e.target.closest("#tp-drop");if(!z)return;e.preventDefault();z.classList.remove("over");const f=[...(e.dataTransfer&&e.dataTransfer.files||[])];if(f.length)addDocs(f)});

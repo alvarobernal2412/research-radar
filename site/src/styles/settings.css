@@ -32,3 +32,15 @@ input[type=password]{font:inherit;font-size:.9rem;padding:7px 9px;border:1px sol
 .doclist .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .seeds summary{cursor:pointer;font-size:.86rem;color:var(--muted)}
 .seeds ul{margin:8px 0 0;padding-left:1.2em;font-size:.86rem;display:flex;flex-direction:column;gap:4px}
+
+/* scan timeline */
+.tline{list-style:none;margin:0;padding:0 0 0 14px;border-left:2px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.tl-item{position:relative;padding-left:14px}
+.tl-dot{position:absolute;left:-22px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
+.tl-dot.bad{background:var(--crit)}
+.tl-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tl-note{margin:4px 0 0;font-size:.82rem}
+.tl-list{margin-top:6px;font-size:.86rem}
+.tl-list summary{cursor:pointer;color:var(--accent)}
+.tl-list ul{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
+.tlwrap{margin-bottom:26px}

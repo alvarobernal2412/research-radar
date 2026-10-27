@@ -91,8 +91,25 @@ async function retryPaper(id){
   try{await writeControl({retryPaperIds:ids.concat(id),status:"queued",mode:(S.control&&S.control.status==="queued"&&S.control.mode)||"incremental",requestedAt:(S.control&&S.control.status==="queued"&&S.control.requestedAt)||new Date().toISOString()});render(true)}
   catch(e){const b=document.querySelector(`[data-retry="${CSS.escape(id)}"]`);if(b)b.textContent="Couldn't queue the retry"}
 }
+function rerenderMaint(){const s=document.getElementById("tp-maint");if(s)s.innerHTML=maintenanceSection()}
 function radarPanel(){
-  const r=S.radars.find(x=>x.id===S.rid);
+  const r=S.radars.find(x=>x.id===S.rid)||radarInfo(S.rid);
   if(!r||!S.canEdit)return"";
-  return `<form class="panel" onsubmit="return false"><h3>This radar</h3><p class="muted" style="margin:0;font-size:.86rem">${r.archived?"Archived radars stay in the menu under Archived and keep their data. Their scheduled scan keeps running until you delete the task in Claude Code.":"Archiving hides the radar from the main list. Its data is kept."}${radarSlot(r)?` Scans ${esc(radarSlot(r))}.`:""}</p><div class="btnrow"><button type="button" class="btn" data-tp="${r.archived?"restore":"archive"}">${r.archived?"Restore radar":"Archive radar"}</button></div></form>`;
+  const slot=radarSlot(r);
+  let h=`<form class="panel" onsubmit="return false"><h3>This radar${r.paused?` <span class="pill amb">Scans paused</span>`:""}</h3>`;
+  if(TP.renaming)h+=`<div class="fld"><label for="tp-rname">Name</label><input type="text" id="tp-rname" value="${esc(r.name||siteName())}" maxlength="60" autocomplete="off"></div><div class="fld"><label for="tp-rtag">Description</label><input type="text" id="tp-rtag" value="${esc(cfg().tagline||r.tagline||"")}" maxlength="80" autocomplete="off"></div><div class="btnrow"><button type="button" class="btn primary" data-tp="rename-save">Save name</button><button type="button" class="btn" data-tp="rename-cancel">Cancel</button></div>`;
+  else h+=`<p class="muted" style="margin:0;font-size:.86rem">${r.archived?"Archived radars stay in the menu under Archived and keep their data.":"Archiving hides the radar from the main list. Its data is kept."}${slot?` Scans ${esc(slot)}.`:""} Stopping or deleting the scheduled task is done from the artifact chat: the buttons below write the message for you.</p><div class="btnrow"><button type="button" class="btn" data-tp="rename">Rename radar</button><button type="button" class="btn" data-tp="${r.archived?"restore":"archive"}">${r.archived?"Restore radar":"Archive radar"}</button><button type="button" class="btn" data-tp="${r.paused?"radar-resume":"radar-stop"}">${r.paused?"Resume scans…":"Stop scans…"}</button>${r.id===MAIN?"":`<button type="button" class="btn danger" data-tp="radar-delete">Delete radar…</button>`}</div>`;
+  return h+`</form>`;
+}
+async function renameRadar(){
+  const r=S.radars.find(x=>x.id===S.rid)||radarInfo(S.rid);if(!r||!S.db)return;
+  const name=((document.getElementById("tp-rname")||{}).value||"").trim(),tagline=((document.getElementById("tp-rtag")||{}).value||"").trim();
+  if(!name){setMsg("maint","Give the radar a name.","err");return}
+  setMsg("maint","Saving…");
+  try{
+    const {id,root,...rest}=r;
+    await S.db.doc(`radars/${S.rid}`).set(Object.assign({},rest,root?{root}:{},{name,tagline}));
+    await writeConfig({siteName:name,tagline});
+    TP.renaming=false;TP.dirty=false;rerenderMaint();setMsg("maint","Radar renamed.","ok");
+  }catch(e){setMsg("maint","Couldn't rename the radar. You may not have permission.","err")}
 }

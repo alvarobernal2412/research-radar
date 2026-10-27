@@ -87,6 +87,8 @@ function rmAct(act){
   if(act==="make"){const f=rmFields();const p=rmProblem(f.name);if(p){RM.modal=f;rmForm(f,p);return}RM.modal=f;rmShow(f);return}
   if(act==="back"){rmForm(RM.modal);return}
   if(act==="copy"){rmCopy();return}
+  if(act==="acopy"){rmCopy();return}
+  if(act==="asave"){rmActionSave();return}
   if(act==="save"){rmSave();return}
 }
 document.addEventListener("click",e=>{
@@ -97,6 +99,7 @@ document.addEventListener("click",e=>{
   if(RM.open&&!e.target.closest(".brand"))setMenu(false);
 });
 document.addEventListener("input",e=>{
+  if(e.target.id==="rm-confirm"){const ok=e.target.value.trim()===RM.modal.name;document.querySelectorAll('[data-rm="acopy"],[data-rm="asave"]').forEach(b=>{b.disabled=!ok})}
   if(e.target.id==="rm-name"){const el=document.getElementById("rm-id");if(el){const s=slugify(e.target.value);el.textContent=e.target.value.trim()?`Radar id: ${s||"…"}`:""}}
 });
 document.addEventListener("keydown",e=>{
@@ -112,4 +115,28 @@ async function setArchived(flag){
   const r=S.radars.find(x=>x.id===S.rid);if(!r||!S.db)return;
   const {id,...rest}=r;try{await S.db.doc(`radars/${S.rid}`).set(Object.assign({},rest,{archived:flag}));setMsg("maint",flag?"Radar archived. It stays in the menu under Archived.":"Radar restored.","ok")}
   catch(e){setMsg("maint","Couldn't change the radar. You may not have permission.","err")}
+}
+/* stop / resume / delete (Topic & scans): the page can't touch the scheduled task, so it writes the message for the artifact chat */
+function radarActionPrompt(kind,r){
+  const task=r.triggerId||(r.id===S.rid&&cfg().triggerId)||"(look it up in the radar's config)";
+  const head=`This is about the radar "${r.name||r.id}" (id: ${r.id}, scheduled task: ${task}) in this Research Radar. Only touch this radar; leave every other radar alone.`;
+  if(kind==="stop")return `${head}\n\nStop its scheduled scan: pause the scheduled task so it no longer runs. Do not delete the task, and keep all of the radar's papers, venues and settings. Then set paused: true in radars/${r.id} (keep its other fields) so the site shows the radar as paused. Tell me what you changed.`;
+  if(kind==="resume")return `${head}\n\nResume its scheduled scan: re-enable the paused scheduled task with its existing schedule. Then set paused: false in radars/${r.id} (keep its other fields). Tell me what you changed.`;
+  return `${head}\n\nDelete this radar completely. In this order: (1) delete the scheduled task; (2) delete every document under radars/${r.id}/ (papers, conferences, journals, meta/*), and the viewers' marks-${r.id} documents under data/users/ that you can reach; (3) delete the registry document radars/${r.id}. Do not touch the main radar's documents at the database root or the shared scan lock unless it is held by this radar's scan. List what you deleted, and anything you could not.`;
+}
+function radarActionDialog(kind){
+  const r=S.radars.find(x=>x.id===S.rid)||radarInfo(S.rid);if(!r)return;
+  const del=kind==="delete",nm=r.name||r.id;
+  RM.modal={act:kind,name:nm};
+  rmShell(`<h2 id="rm-title">${{stop:"Stop scans",resume:"Resume scans",delete:"Delete radar"}[kind]}: ${esc(nm)}</h2><p class="muted" style="margin:0">${del?`This can't be undone. Send this message in the artifact chat (the Claude conversation for this page); it names the radar so only "${esc(nm)}" is removed.`:`Send this message in the artifact chat (the Claude conversation for this page). It names the radar so only "${esc(nm)}" is affected.`}</p>${del?`<div class="fld"><label for="rm-confirm">Type the radar's name to enable the prompt</label><input type="text" id="rm-confirm" autocomplete="off" placeholder="${esc(nm)}"></div>`:""}
+  <div class="fld"><label for="rm-prompt">Message</label><textarea id="rm-prompt" rows="9" readonly>${esc(radarActionPrompt(kind,r))}</textarea></div>
+  <div class="tpmsg" id="rm-msg" role="status"></div>
+  <div class="btnrow"><button type="button" class="btn primary" data-rm="acopy"${del?" disabled":""}>Copy message</button><button type="button" class="btn" data-rm="asave"${del?" disabled":""}>Save as file</button><button type="button" class="btn" data-rm="close">Close</button></div>`);
+}
+async function rmActionSave(){
+  let dl=null;try{dl=await window.claude.use("downloads")}catch(e){}
+  if(!dl){rmMsg("Downloads aren't available in this view. Use Copy message.","err");return}
+  const r=radarInfo(S.rid)||{id:S.rid};
+  try{await dl.save({filename:`${RM.modal.act}-radar-${r.id}.txt`,data:document.getElementById("rm-prompt").value});rmMsg("Saved.","ok")}
+  catch(e){if(e&&e.code!=="declined")rmMsg("Couldn't save the file.","err")}
 }
