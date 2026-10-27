@@ -94,7 +94,7 @@
       "type": "object",
       "required": ["name"],
       "properties": {
-        "name": {"type": "string"}, "tagline": {"type": "string"}, "root": {"type": "boolean"}, "archived": {"type": "boolean"}, "order": {"type": "integer"},
+        "name": {"type": "string"}, "tagline": {"type": "string"}, "root": {"type": "boolean"}, "archived": {"type": "boolean"}, "paused": {"type": "boolean", "description": "Set when the scheduled task was paused from the site's Stop scans message."}, "order": {"type": "integer"},
         "weekday": {"type": "integer", "minimum": 0, "maximum": 6, "description": "0 = Monday ... 6 = Sunday."},
         "time": {"type": "string", "pattern": "^\\d{2}:\\d{2}$"}, "timezone": {"type": "string"},
         "scheduleText": {"type": "string"}, "triggerId": {"type": "string"}, "createdAt": {"$ref": "#/$defs/date"}
