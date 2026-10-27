@@ -5,7 +5,7 @@ Literature radars for your research topics, in one Claude artifact. Each radar h
 - **Conferences:** a CORE tier list, deadlines for every track, the next edition and the one after, and committees with topic-related people flagged.
 - **Journals:** journals ordered by impact factor or topic fit, with special issues and editorial boards.
 - **Venue pages** (conferences and journals) also show the venue's **AI usage guidelines** and **format guidelines** (template, page limit, review type), each with a source link and the date it was checked, and the **papers found here**, grouped by edition year. Guidelines the scan hasn't collected yet show as "Not collected yet".
-- **Contributions:** every paper found, with filters, sorting and search by title or author. Each paper has a detail page with:
+- **Contributions:** every paper found, with filters, sorting and search by title or author. Venue kind, paper type, venue, theme and database are checkbox dropdowns, so you can pick several values at once. **Star**, **Mark read** and **Hide** are your own marks: hidden papers leave the list until you tick *Show hidden*. Each paper has a detail page with:
   - its affinity to your topic;
   - a summary and its main contribution;
   - future work;
@@ -18,7 +18,9 @@ Literature radars for your research topics, in one Claude artifact. Each radar h
   - deriving the topic from seed papers;
   - rescoring, removing or re-searching papers when the topic changes;
   - choosing sources and entering API keys;
+  - the scan timeline: what each scan found, with links to those papers;
   - the scan log;
+  - renaming, stopping or deleting the radar;
   - data export.
 
 Conferences and journals both have an *Emerging* section. Records the scan could only partly collect are flagged: a paper analysed from its abstract alone is marked **Partial**, and its author-stated fields show as *unknown* rather than *none stated*. When the OpenAlex source is on, a retry first tries to fill the gaps from OpenAlex (abstract, keywords, open-access link) before looking for the open-access copy or publisher page again. OpenAlex has no full text, so limitations and future work stay unknown until the paper is actually read.
@@ -33,6 +35,7 @@ You can track several topics side by side. The name in the menu bar is a dropdow
 - **Different days on purpose:** every radar scans on its own weekday, chosen to be as far as possible from the others (Sunday, then Wednesday, then Friday, and so on), so no source is queried twice in one day from your IP address. With more than seven radars a weekday is shared at hours far apart. A scan also waits if another radar's scan is still running, which covers *Run now* pressed at a bad moment.
 - **Your first radar is untouched.** It keeps its data at the root of the database, its links and its scheduled task, and appears in the dropdown as the first radar. Other radars live under `radars/<id>/` and use links like `#nlp~conferences`.
 - **Archive** a radar from its Topic & scans page to move it out of the main list. Its data is kept.
+- **Rename, stop or delete** a radar from the same page. Renaming happens right there. A page cannot pause or delete a scheduled task, so *Stop scans*, *Resume scans* and *Delete radar* give you a message that names the radar and its task; send it in the artifact chat. The first radar can be stopped but not deleted.
 
 ## Install
 

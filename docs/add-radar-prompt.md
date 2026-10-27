@@ -92,5 +92,7 @@ Your first radar stays where it always was, at the root of the database, so it k
 ## Changing or removing a radar
 
 - **Change its schedule:** edit the scheduled task in Claude Code, then update `weekday`, `time` and `scheduleText` in `radars/<id>`. Pick a weekday no other radar uses.
+- **Rename it:** on its Topic & scans page, press "Rename radar".
+- **Pause it:** press "Stop scans…" on that page and send the message it gives you in the artifact chat. Claude pauses the scheduled task and sets `paused: true` in `radars/<id>`; "Resume scans…" reverses it. The data is kept.
 - **Hide it:** on its Topic & scans page, press "Archive radar". The data is kept, and the radar moves to the Archived group in the dropdown. The scheduled task keeps running until you delete it in Claude Code.
-- **Delete it for good:** delete its scheduled task in Claude Code, then delete the documents under `radars/<id>/` from the artifact's database.
+- **Delete it for good:** press "Delete radar…" on that page (not offered for the first radar), type its name and send the message in the artifact chat. Claude deletes the scheduled task, then the documents under `radars/<id>/`, then `radars/<id>`. You can also do it by hand: delete its scheduled task in Claude Code, then those documents.

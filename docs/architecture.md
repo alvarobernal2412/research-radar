@@ -11,11 +11,17 @@
 
 ## Radars
 
-One artifact can hold several radars, each a separate research topic. `radars/<id>` is the registry (name, tagline, weekday, time, task id, archived). The first radar, `main`, keeps its documents at the database root, so an install made before multiple radars needs no migration; every other radar keeps the same documents under `radars/<id>/` (for example `radars/nlp/papers/<id>`, `radars/nlp/meta/topic`). The page works out the prefix in one helper (`rp()` in `site/src/js/00-core.js`) and `attachRadar()` in `90-boot.js` drops the previous radar's listeners and state when you switch. Links to a radar other than the first carry its id (`#nlp~paper.<id>`).
+One artifact can hold several radars, each a separate research topic. `radars/<id>` is the registry (name, tagline, weekday, time, task id, archived, paused). The first radar, `main`, keeps its documents at the database root, so an install made before multiple radars needs no migration; every other radar keeps the same documents under `radars/<id>/` (for example `radars/nlp/papers/<id>`, `radars/nlp/meta/topic`). The page works out the prefix in one helper (`rp()` in `site/src/js/00-core.js`) and `attachRadar()` in `90-boot.js` drops the previous radar's listeners and state when you switch. Links to a radar other than the first carry its id (`#nlp~paper.<id>`).
 
 Shared by all radars: `data/users/<id>/settings` (API keys), the artifact's sharing, and the weekly-scan lock `scanlock/current`. Per radar and per viewer: the marks (`data/users/<id>/marks` for the first radar, `marks-<radar id>` for the others).
 
 Each radar has its own scheduled task. `pipeline/radar/schedule.py` assigns weekdays so that no two radars scan on the same day while there are seven or fewer, and `pipeline/render_prompt.py --radar <id>` renders that radar's scan prompt (the same prompt with a header telling the scan which prefix to use). Before it does anything, a scan creates `scanlock/current`; if another radar's scan holds it (less than 3 hours old) the scan defers itself and leaves its request queued.
+
+## Managing a radar
+
+Topic & scans has a **Scan timeline** built from `meta/run.history` plus each paper's `discoveredAt` (same-day scans share an entry). **Rename** writes `radars/<id>` and the radar's `meta/config`. The page cannot stop or delete a scheduled task, so **Stop / Resume / Delete** show a message naming the radar and its task, to be sent in the artifact chat; Claude sets `paused` on `radars/<id>` when it pauses the task. The main radar can be stopped but not deleted.
+
+Each viewer's marks (`star`, `read`, `hide`) are per radar. Hidden papers are only filtered out of Contributions (Show hidden brings them back); they stay stored and counted.
 
 ## Documents
 
@@ -24,7 +30,7 @@ Each radar has its own scheduled task. `pipeline/radar/schedule.py` assigns week
 - `meta/config`: site name, tagline, schedule text, enabled sources, lookback, minimum affinity, and the scheduled task id.
 - `meta/control`: requests from the site to the scan: `status` (queued, running, done), `mode` (incremental, rescore, full), `deriveTopicFromSeeds` and `retryPaperIds`.
 - `meta/run`: the last run's status, counts, issues and history.
-- `data/users/<id>/settings`: the viewer's API keys. `data/users/<id>/marks`: the viewer's starred and read papers.
+- `data/users/<id>/settings`: the viewer's API keys. `data/users/<id>/marks`: the viewer's starred, read and hidden papers.
 
 ## Site to scan
 

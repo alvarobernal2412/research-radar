@@ -36,7 +36,8 @@ Steps:
    python pipeline/render_prompt.py, compare it with my scheduled task's
    current prompt, and update the task according to my answer to question 2.
    Keep its schedule and triggerId, and keep any local-mirror step 9 that was
-   appended to it earlier. If config/site.json lists several radars, do this
+   appended to it earlier. If radars/<id> has paused: true, update that task's
+   prompt but leave the task paused. If config/site.json lists several radars, do this
    for each one with python pipeline/render_prompt.py --radar <id> and that
    radar's own task. Never move two radars' tasks onto the same day.
 7. If infra/ changed and the local mirror stack exists: run
@@ -64,5 +65,5 @@ The install and update prompts record the commit you last published in `config/s
 
 - It never rewrites your data. Papers, venues, topic and settings stay in the artifact's database.
 - It does not commit or push anything.
-- It updates the scheduled task's prompt only when the scan instructions changed, and keeps its schedule and `triggerId`.
+- It updates the scheduled task's prompt only when the scan instructions changed, and keeps its schedule and `triggerId`. A radar you paused stays paused.
 - Schema changes are reported, not applied. A migration, if one is ever needed, is described in the commit that introduces it.
