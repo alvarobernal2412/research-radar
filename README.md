@@ -270,6 +270,10 @@ To make the scheduled task feed the mirror, append the step in [infra/scan-mirro
 
 The stack does not need to be running for scans to work; a failed mirror step never affects the artifact.
 
+## Read-only site (optional)
+
+`python site/build.py --static export.json [more.json...]` builds `dist/pages/index.html`, a single read-only page for static hosting such as GitHub Pages. Pass one site export (Topic & scans, Export) per radar; the first is the root radar unless an export says otherwise. The page embeds the snapshot and a read-only runtime (`site/static-shim.js`): nothing can be posted, put or deleted, and the edit controls are hidden. Read marks stay in each visitor's browser. It is a snapshot, so rebuild it after a scan to update it. Keep your own snapshots and deploy workflow in a separate repository rather than here.
+
 ## Limits worth knowing
 
 - Browser sources (DBLP, ScienceDirect, IEEE Xplore, SpringerLink, ACM, arXiv, Scholar, Scopus) are read through Chrome on your computer, so your computer must be on with Chrome open during a scan. OpenAlex doesn't need either.
