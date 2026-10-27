@@ -68,7 +68,8 @@ function mockRuntime(seed) {
   const seed = {
     "meta/topic": { description: "Old topic", themes: [{ name: "Provenance models", weight: 1, keywords: ["provenance"] }], revision: 1, selfName: "Alex Example" },
     "meta/config": { siteName: "Test Radar", tagline: "smoke test", triggerId: "trig_test", scheduleText: "Sundays at 09:49" },
-    "meta/run": { lastRunAt: "2026-10-13T14:00:00Z", status: "partial", counts: { newPapers: 3 } },
+    "meta/run": { lastRunAt: "2026-10-13T14:00:00Z", status: "partial", counts: { newPapers: 3 },
+      history: [{ date: "2026-10-13", status: "ok", accessMode: "api", newPapers: 9, note: "First scan" }, { date: "2026-10-14", status: "partial", accessMode: "api", newPapers: 1, note: "One source timed out" }] },
   };
   seed["conferences/exconf"] = { name: "Example Conference", acronym: "EXCONF", coreRank: "A", topicScore: 80,
     aiPolicy: { stance: "disclosure", summary: "Authors must disclose AI tools.", rules: ["No AI-written reviews"], url: "https://example.org/ai", checkedAt: "2026-10-01" },
@@ -130,6 +131,38 @@ function mockRuntime(seed) {
   check("completeness filter narrows the list", inc > 0 && inc <= papers.length, `${inc} incomplete`);
   await pg.selectOption("#flt-comp", "all");
 
+  // multi-select filters
+  await pg.click("#flt-kind summary");
+  await pg.check('#flt-kind input[value="conference"]');
+  await pg.check('#flt-kind input[value="journal"]');
+  await pg.waitForTimeout(200);
+  const nKinds = papers.filter((p) => ["conference", "journal"].includes(p.venueKind)).length;
+  check("ticking two venue kinds shows papers of either", (await pg.$$eval(".prow", (r) => r.length)) === nKinds && nKinds < papers.length, String(nKinds));
+  check("the dropdown summarises the selection", (await pg.textContent("#flt-kind summary")) === "2 selected");
+  await pg.click("#flt-theme summary");
+  await pg.check('#flt-theme input[value="User studies"]');
+  await pg.waitForTimeout(200);
+  const nBoth = papers.filter((p) => ["conference", "journal"].includes(p.venueKind) && (p.themes || []).includes("User studies")).length;
+  check("different filters combine with AND", (await pg.$$eval(".prow", (r) => r.length)) === nBoth, String(nBoth));
+  await shot("filters-open");
+  await pg.click("#flt-reset");
+  await pg.waitForTimeout(200);
+  check("Clear filters resets the multi-selects", (await pg.$$eval(".prow", (r) => r.length)) === papers.length && (await pg.textContent("#flt-kind summary")) === "All kinds");
+
+  // hide mark
+  await pg.click('.prow [data-mark="hide"]');
+  await pg.waitForTimeout(200);
+  check("hiding a paper removes it from the list", (await pg.$$eval(".prow", (r) => r.length)) === papers.length - 1);
+  check("hidden papers are counted", (await pg.textContent("#flt-hid-n")) === "1" && (await pg.textContent("#rescount")).includes("1 hidden"));
+  check("the hide mark is stored with the viewer's marks", (await pg.evaluate(() => window.__writes)).some(([, p]) => p === "data/users/u_test/marks"));
+  await pg.check("#flt-hid");
+  await pg.waitForTimeout(200);
+  check("Show hidden brings it back, marked Hidden", (await pg.$$eval(".prow", (r) => r.length)) === papers.length && (await pg.$$eval(".prow.hidden-p", (r) => r.length)) === 1);
+  await pg.click('.prow.hidden-p [data-mark="hide"]');
+  await pg.waitForTimeout(200);
+  check("Unhide clears the mark", (await pg.$$eval(".prow.hidden-p", (r) => r.length)) === 0 && (await pg.textContent("#flt-hid-n")) === "0");
+  await pg.click("#flt-reset");
+
   const target = papers.find((p) => p.fullTextRead !== true) || papers[0];
   await pg.goto("file://" + page + "#paper." + (target.id || "p0"));
   await pg.waitForTimeout(400);
@@ -157,6 +190,17 @@ function mockRuntime(seed) {
   await pg.goto("file://" + page + "#topic");
   await pg.waitForTimeout(500);
   await shot("topic");
+  check("timeline has one entry per scan, newest first", (await pg.$$eval(".tl-item .tl-head b", (e) => e.map((x) => x.textContent))).length === 2 && (await pg.textContent(".tl-item")).includes("14 Oct"));
+  await pg.$$eval("details.tl-list", (d) => d.forEach((x) => { x.open = true; }));
+  const tl = await pg.$$eval('.tl-list a[href^="#paper."]', (a) => a.map((x) => x.getAttribute("href")));
+  check("timeline links every stored paper to its detail view", tl.length === papers.length && tl.includes("#paper.p1"), String(tl.length));
+  const firstItem = await pg.$$eval(".tl-item", (e) => e[0].querySelectorAll("li").length);
+  check("each scan lists only the papers it found", firstItem === papers.filter((p) => p.discoveredAt === "2026-10-14").length, String(firstItem));
+  await pg.click('.tl-list a[href="#paper.p1"]');
+  await pg.waitForTimeout(300);
+  check("a timeline link opens the paper", (await pg.evaluate(() => location.hash)) === "#paper.p1" && !!(await pg.$("#comp-note")));
+  await pg.goto("file://" + page + "#topic");
+  await pg.waitForTimeout(500);
   await pg.click('[data-tp="derive"]');
   await pg.fill("#tp-paste", "Exploratory process mining with provenance. We study how analysts branch and compare analyses.\n\n10.1234/example.1");
   await pg.click('[data-tp="propose"]');
@@ -232,6 +276,25 @@ function mockRuntime(seed) {
   const firedNlp = await pg.evaluate(() => window.__fired);
   check("Run now starts the active radar's task", firedNlp.length > 0 && firedNlp[firedNlp.length - 1][2].trigger_id === "trig_nlp", JSON.stringify(firedNlp[firedNlp.length - 1]));
   check("scan requests are written under the radar", (await pg.evaluate(() => window.__writes)).some(([, p]) => p === "radars/nlp/meta/control"));
+  await pg.click('[data-tp="radar-stop"]');
+  const stopP = await pg.inputValue("#rm-prompt");
+  check("Stop scans writes a message naming the radar and its task", stopP.includes('"NLP radar"') && stopP.includes("id: nlp") && stopP.includes("trig_nlp") && stopP.includes("pause") && stopP.includes("paused: true"), stopP.slice(0, 100));
+  await pg.click('[data-rm="close"]');
+  await pg.click('[data-tp="radar-delete"]');
+  check("Delete is locked until the name is typed", await pg.isDisabled('[data-rm="acopy"]'));
+  await pg.fill("#rm-confirm", "NLP radar");
+  check("typing the name unlocks the message", !(await pg.isDisabled('[data-rm="acopy"]')));
+  const delP = await pg.inputValue("#rm-prompt");
+  check("Delete message names the radar's data and task", delP.includes("radars/nlp/") && delP.includes("delete the scheduled task") && delP.includes("id: nlp"));
+  await pg.click('[data-rm="close"]');
+  await pg.click('[data-tp="rename"]');
+  await pg.fill("#tp-rname", "NLP and LLMs");
+  await pg.fill("#tp-rtag", "language models");
+  await pg.click('[data-tp="rename-save"]');
+  await pg.waitForTimeout(500);
+  const wr = await pg.evaluate(() => window.__writes);
+  check("rename updates the registry and the radar's config", wr.some(([, p]) => p === "radars/nlp") && wr.some(([, p]) => p === "radars/nlp/meta/config"));
+  check("the brand shows the new name", (await pg.textContent(".brand-btn")).includes("NLP and LLMs"));
   await pg.click('[data-tp="archive"]');
   await pg.waitForTimeout(500);
   await pg.click("#radar-btn");
@@ -250,6 +313,10 @@ function mockRuntime(seed) {
   check("the prompt lists the existing radars", pr.includes("nlp"));
   await pg.click('[data-rm="close"]');
   check("closing the dialog removes it", (await pg.$("#radar-modal")) === null);
+
+  await pg.goto("file://" + page + "#topic");
+  await pg.waitForTimeout(500);
+  check("the main radar can be stopped but not deleted", !!(await pg.$('[data-tp="radar-stop"]')) && !(await pg.$('[data-tp="radar-delete"]')));
 
   await pg.goto("file://" + page + "#network");
   await pg.waitForTimeout(1200);
