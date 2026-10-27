@@ -1,0 +1,48 @@
+{
+ "format": "research-radar/v1",
+ "exportedAt": "2026-10-27T00:00:00Z",
+ "site": {
+  "name": "NLP radar",
+  "radar": "nlp"
+ },
+ "topic": {
+  "description": "NLP",
+  "themes": [
+   {
+    "name": "Language models",
+    "weight": 1,
+    "keywords": [
+     "llm"
+    ]
+   }
+  ],
+  "revision": 1
+ },
+ "config": {
+  "siteName": "NLP radar",
+  "tagline": "language models"
+ },
+ "papers": [
+  {
+   "id": "n1",
+   "title": "NLP only paper",
+   "authors": [
+    {
+     "name": "Nora Lang"
+    }
+   ],
+   "year": 2026,
+   "venueId": "nlpconf",
+   "venueName": "NLP Conference",
+   "venueKind": "conference",
+   "affinity": 80,
+   "foundIn": [
+    "OpenAlex"
+   ],
+   "discoveredAt": "2026-10-10",
+   "scoredTopicRevision": 1
+  }
+ ],
+ "conferences": [],
+ "journals": []
+}
