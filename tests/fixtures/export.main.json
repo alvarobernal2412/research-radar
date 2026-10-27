@@ -20,7 +20,8 @@
  },
  "config": {
   "siteName": "Test Radar",
-  "tagline": "static test"
+  "tagline": "static test",
+  "triggerId": "trig_secret"
  },
  "run": {
   "lastRunAt": "2026-10-13T14:00:00Z",

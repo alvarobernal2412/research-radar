@@ -67,6 +67,9 @@ def static_docs(exports: list[dict]) -> dict:
         for k in ("topic", "config", "run", "control"):
             if x.get(k):
                 docs[f"{pre}meta/{k}"] = x[k]
+        if "config" in x and x["config"]:
+            # The scheduled task's id means nothing to readers; keep it out of the public page.
+            docs[f"{pre}meta/config"] = {a: b for a, b in x["config"].items() if a != "triggerId"}
         for k in ("papers", "conferences", "journals"):
             for d in x.get(k) or []:
                 if d.get("id"):

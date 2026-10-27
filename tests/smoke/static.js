@@ -45,6 +45,7 @@ const d3Path = path.join(path.dirname(path.dirname(require.resolve("d3"))), "dis
   });
   check("writes to data are blocked", w === "blocked");
   check("no network request left the page", requests.length === 0, requests.join(" | "));
+  check("scheduled task id is not published", !(await pg.content()).includes("trig_"));
   check("no page errors", errors.length === 0, errors.join(" | "));
 
   for (const [s, n, d] of results) console.log(`${s}  ${n}${d ? "  (" + d + ")" : ""}`);
