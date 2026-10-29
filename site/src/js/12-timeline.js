@@ -3,9 +3,15 @@ const TL_W=1000,TL_ZOOMS=[1,1.5,2,3,4,6,8,12],TL_BACK=21,TL_MIN_AHEAD=120,TL_MAX
 function tlDay(d){const t=Date.parse(d+"T12:00:00");if(isNaN(t))return null;const n=new Date();return Math.round((t-Date.UTC(n.getFullYear(),n.getMonth(),n.getDate(),12))/864e5)}
 const TL_HUES=[5,210,140,275,30,185,330,55,245,100,300,160];
 function tlHue(ids,id){return TL_HUES[ids.indexOf(id)%TL_HUES.length]}
-function tlEvents(confs){
+const TLF={rid:null,conf:[],type:[],labels:true};
+function tlState(){if(TLF.rid!==S.rid){const s=lsGet(rkey("pr-tlfilter"),{});TLF.rid=S.rid;TLF.conf=arr(s.conf);TLF.type=arr(s.type);TLF.labels=s.labels!==false}return TLF}
+function tlStore(){lsSet(rkey("pr-tlfilter"),{conf:TLF.conf,type:TLF.type,labels:TLF.labels})}
+const tlType=d=>d.type||"Other";
+function tlEvents(confs,f){
   const by=new Map();
   for(const c of confs)for(const d of arr(c.deadlines))for(const [k,kind] of [["paperDue","paper"],["notification","notif"]]){
+    if(f.conf.length&&!f.conf.includes(c.id))continue;
+    if(f.type.length&&!f.type.includes(tlType(d)))continue;
     const v=d[k],n=v?tlDay(v):null;
     if(n===null||n<-TL_BACK||n>TL_MAX_AHEAD)continue;
     const key=c.id+"|"+kind+"|"+v;
@@ -28,6 +34,17 @@ function tlZoomBy(a){
   TLZ.i=i;lsSet("pr-tlzoom",i);render(true);
   const s=document.querySelector(".tl-scroll");if(s)s.scrollLeft=f*s.scrollWidth-s.clientWidth/2;
 }
+function tlSetFilter(key,v,on){
+  const f=tlState(),a=f[key].filter(x=>x!==v);if(on)a.push(v);f[key]=a;tlStore();
+  render(true);
+  const d=document.getElementById("tlf-"+key);if(d)d.open=true;
+  const i=document.querySelector(`[data-tlf="${key}"]`+`[value="${CSS.escape(v)}"]`);if(i)i.focus();
+}
+function tlSetLabels(on){tlState().labels=on;tlStore();render(true);const i=document.querySelector("[data-tllabels]");if(i)i.focus()}
+function tlMulti(key,label,opts,sel,all){
+  const n=sel.length,names=sel.map(v=>(opts.find(o=>o[0]===v)||[0,v])[1]);
+  return `<div class="fld tl-f"><details class="msel${n?" on":""}" id="tlf-${key}"><summary aria-label="${esc(label)}">${esc(n===0?all:n===1?names[0]:n+" selected")}</summary><div class="mselbox" role="group" aria-label="${esc(label)}">${opts.map(([v,l])=>`<label><input type="checkbox" data-tlf="${key}" value="${esc(v)}"${sel.includes(v)?" checked":""}> ${esc(l)}</label>`).join("")}</div></details></div>`;
+}
 function tlLanes(evs,pos,W){
   const lanes=[];
   for(const e of evs){
@@ -40,15 +57,20 @@ function tlLanes(evs,pos,W){
 }
 function deadlineTimeline(confs){
   const all=confs.filter(c=>arr(c.deadlines).length);
-  const evs=tlEvents(all);
-  const Z=TL_ZOOMS[TLZ.i],W=TL_W*Z;
-  let h=`<section class="block"><div class="sechead"><h2>Deadline timeline</h2><div class="tl-ctl"><div class="seg" role="group" aria-label="Zoom"><button type="button" data-tlz="-1" aria-label="Zoom out"${TLZ.i===0?" disabled":""}>−</button><button type="button" disabled class="tl-zl">${Z}×</button><button type="button" data-tlz="1" aria-label="Zoom in"${TLZ.i===TL_ZOOMS.length-1?" disabled":""}>+</button></div><button type="button" class="btn" data-tlz="today">Today</button></div></div><p class="muted" style="font-size:.85rem;margin:0">Filled dot: paper deadline · ring: notification · days counted from today · zoom in to separate crowded dates</p>`;
-  if(!evs.length)return h+`<div class="empty"><span>No submission or notification dates in the next ${TL_MAX_AHEAD} days${all.length?"":" (no conference has dates yet)"}.</span></div></section>`;
+  const f=tlState();
+  const confOpts=all.map(c=>[c.id,c.acronym||c.name]).sort((a,b)=>a[1].localeCompare(b[1]));
+  const typeOpts=[...new Set(all.flatMap(c=>arr(c.deadlines).map(tlType)))].sort().map(t=>[t,t]);
+  f.conf=f.conf.filter(v=>confOpts.some(o=>o[0]===v));f.type=f.type.filter(v=>typeOpts.some(o=>o[0]===v));
+  const evs=tlEvents(all,f);
+  const Z=TL_ZOOMS[TLZ.i],W=TL_W*Z,filtered=f.conf.length||f.type.length;
+  let h=`<section class="block"><div class="sechead"><h2>Deadline timeline</h2><div class="tl-ctl"><div class="seg" role="group" aria-label="Zoom"><button type="button" data-tlz="-1" aria-label="Zoom out"${TLZ.i===0?" disabled":""}>−</button><button type="button" disabled class="tl-zl">${Z}×</button><button type="button" data-tlz="1" aria-label="Zoom in"${TLZ.i===TL_ZOOMS.length-1?" disabled":""}>+</button></div><button type="button" class="btn" data-tlz="today">Today</button></div></div><div class="tl-bar">${tlMulti("conf","Filter by conference",confOpts,f.conf,"All conferences")}${tlMulti("type","Filter by paper type",typeOpts,f.type,"All paper types")}<label class="tl-chk"><input type="checkbox" data-tllabels${f.labels?" checked":""}> Show labels</label></div><p class="muted" style="font-size:.85rem;margin:0">Filled dot: paper deadline · ring: notification · days counted from today · zoom in to separate crowded dates${f.labels?"":" · labels show on hover"}</p>`;
+  if(!evs.length)return h+`<div class="empty"><span>${filtered?"No deadlines match these filters in the next "+TL_MAX_AHEAD+" days.":`No submission or notification dates in the next ${TL_MAX_AHEAD} days${all.length?"":" (no conference has dates yet)"}.`}</span></div></section>`;
   const end=Math.max(TL_MIN_AHEAD,Math.min(TL_MAX_AHEAD,evs[evs.length-1].n+10)),start=-TL_BACK,span=end-start;
   const pos=n=>(n-start)/span*100;
   const ids=all.map(c=>c.id).sort();
   const up=evs.filter(e=>e.kind==="paper"),down=evs.filter(e=>e.kind==="notif");
-  const nu=tlLanes(up,pos,W),nd=tlLanes(down,pos,W);
+  let nu=tlLanes(up,pos,W),nd=tlLanes(down,pos,W);
+  if(!f.labels){for(const e of evs)e.lane=0;nu=Math.min(nu,1);nd=Math.min(nd,1)}
   const lineY=22+14+nu*TL_LANE+8,H_=lineY+nd*TL_LANE+34;
   const st=e=>`--c:hsl(${tlHue(ids,e.c.id)} var(--tl-s) var(--tl-l))`;
   const link=e=>H("conf",e.c.id);
@@ -69,7 +91,7 @@ function deadlineTimeline(confs){
     t+=`<a class="tl-lab${e.n<0?" past":""}" href="${link(e)}" title="${esc(tip(e))}" style="${st(e)};left:${e.l/W*100}%;top:${ly}px">${esc(lab)}</a>`;
   }
   t+=`<div class="tl-now" style="left:${pos(0)}%"></div><span class="tl-nowlab" style="left:${pos(0)}%">Today</span>`;
-  h+=`<div class="tl-scroll"><div class="tl" style="height:${H_}px${Z>1?`;width:${W}px`:""}">${t}</div></div>`;
+  h+=`<div class="tl-scroll"><div class="tl${f.labels?"":" nolab"}" style="height:${H_}px${Z>1?`;width:${W}px`:""}">${t}</div></div>`;
   const shown=new Set(evs.map(e=>e.c.id)),missing=confs.length-all.length;
   h+=`<div class="tl-legend">${[...shown].sort().map(id=>{const c=confs.find(x=>x.id===id);return `<a href="${H("conf",id)}" style="--c:hsl(${tlHue(ids,id)} var(--tl-s) var(--tl-l))"><i></i>${esc(c.acronym||c.name)}</a>`}).join("")}${missing?`<span class="muted">${missing} conference${missing===1?"":"s"} without dates not shown</span>`:""}</div></section>`;
   return h;

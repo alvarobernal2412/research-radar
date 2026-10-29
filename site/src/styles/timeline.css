@@ -23,3 +23,10 @@
 .tl-ctl .seg button{min-width:2.2em}
 .tl-ctl .tl-zl{min-width:3.4em;color:var(--ink)}
 .tl-ctl button:disabled:not(.tl-zl){opacity:.45;cursor:not-allowed}
+.tl-bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.tl-f{min-width:190px}
+.tl-chk{display:inline-flex;gap:6px;align-items:center;font-size:.86rem;cursor:pointer}
+.tl-chk input{accent-color:var(--accent)}
+.tl.nolab .tl-lab,.tl.nolab .tl-stem{display:none}
+.tl.nolab .tl-node:hover+.tl-lab,.tl.nolab .tl-node:focus-visible+.tl-lab{display:block;z-index:5;border:1px solid var(--c);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.tl.nolab .tl-stem:has(+ .tl-node:hover),.tl.nolab .tl-stem:has(+ .tl-node:focus-visible){display:block}

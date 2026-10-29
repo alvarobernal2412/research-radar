@@ -1,5 +1,7 @@
 /* ---------- events ---------- */
 app.addEventListener("change",e=>{
+  const tf=e.target.closest("[data-tlf]");if(tf){tlSetFilter(tf.dataset.tlf,tf.value,tf.checked);return}
+  const tb=e.target.closest("[data-tllabels]");if(tb){tlSetLabels(tb.checked);return}
   const c=e.target.closest("input[data-sel]");if(!c)return;
   if(c.checked)S.sel.add(c.dataset.sel);else S.sel.delete(c.dataset.sel);
   updateSelBar();
