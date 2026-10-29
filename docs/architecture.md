@@ -21,6 +21,8 @@ Each radar has its own scheduled task. `pipeline/radar/schedule.py` assigns week
 
 Topic & scans has a **Scan timeline** built from `meta/run.history` plus each paper's `discoveredAt` (same-day scans share an entry). **Rename** writes `radars/<id>` and the radar's `meta/config`. The page cannot stop or delete a scheduled task, so **Stop / Resume / Delete** show a message naming the radar and its task, to be sent in the artifact chat; Claude sets `paused` on `radars/<id>` when it pauses the task. The main radar can be stopped but not deleted.
 
+The Conferences page has a **Deadline timeline**. It reads each conference's `deadlines` (`paperDue` and `notification` for the nodes, `track` for the label, `type` for the paper-type filter; a deadline without a `type` counts as "Other") and writes nothing to the database. The line runs from 21 days back to the last deadline within 365 days (at least 120 days ahead); conferences without dates are only counted under the legend. A conference's colour comes from its position in the sorted list of conferences that have deadlines, so filtering never changes it. Zoom (`pr-tlzoom`) and the filters and labels setting (`pr-tlfilter`, per radar) live in the viewer's browser storage: they are not in the artifact database and do not follow the viewer to another device.
+
 Each viewer's marks (`star`, `read`, `hide`) are per radar. Hidden papers are only filtered out of Contributions (Show hidden brings them back); they stay stored and counted.
 
 ## Documents
