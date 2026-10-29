@@ -18,3 +18,8 @@
 .tl-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:.8rem}
 .tl-legend a{display:inline-flex;align-items:center;gap:6px;color:var(--ink)}
 .tl-legend i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.tl-ctl{display:flex;gap:8px;align-items:center}
+.tl-ctl .btn{padding:5px 11px;font-size:.82rem}
+.tl-ctl .seg button{min-width:2.2em}
+.tl-ctl .tl-zl{min-width:3.4em;color:var(--ink)}
+.tl-ctl button:disabled:not(.tl-zl){opacity:.45;cursor:not-allowed}

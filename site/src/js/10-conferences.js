@@ -1,6 +1,7 @@
 /* ---------- conferences ---------- */
 function confSort(a,b){return (num(b.topicScore)||0)-(num(a.topicScore)||0)||String(a.acronym||a.name).localeCompare(String(b.acronym||b.name))}
 function renderConferences(){
+  tlSave();
   const main=S.confs.filter(c=>!c.emerging),em=S.confs.filter(c=>c.emerging).sort(confSort);
   let h=`<div class="pagehead"><div><h1>Conferences</h1><p>Venues where work on your topic gets published, grouped by CORE rank. Within each rank, the venues that fit your topic best come first.</p></div></div>`;
   if(!S.loaded.c){app.innerHTML=h+loadingBlock();return}
@@ -21,6 +22,7 @@ function renderConferences(){
   h+=`</tbody></table></div></section>`;
   h+=emergingSection(em.map(c=>`<a class="card" href="${H("conf",c.id)}"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><b>${esc(c.acronym||c.name)}</b>${rkBadge(c.coreRank)}</div><div class="muted" style="font-size:.8rem">${esc(c.acronym?c.name:"")}</div><p>${esc(c.emergingReason||"")}</p><div style="font-size:.8rem">${edLine(c.nextEdition)}</div>${dueHtml(nextDeadline(c))}</a>`),"conferences");
   app.innerHTML=h;
+  tlRestore();
 }
 function confChip(c){const nd=nextDeadline(c);const ne=c.nextEdition;const where=ne?([ne.city,ne.country].filter(Boolean).join(", ")||ne.location||""):"";return `<a class="vchip" href="${H("conf",c.id)}" title="${esc(c.name)}"><span class="acr">${esc(c.acronym||c.name)}<span class="mono muted" style="font-size:.72rem">${num(c.topicScore)!==null?c.topicScore+"% fit":""}</span></span><span class="fit"><i style="width:${num(c.topicScore)||0}%"></i></span>${dueHtml(nd)}<span class="ln">${esc(where||"Next edition not announced")}${ne&&ne.year?" · "+esc(ne.year):""}</span></a>`}
 function emergingSection(cards,what){return `<section class="block"><div class="sechead"><h2>Emerging</h2><span class="muted" style="font-size:.85rem">Lower impact today, gaining traction in the community</span></div>${cards.length?`<div class="grid">${cards.join("")}</div>`:`<div class="empty"><span>No emerging ${what} flagged yet.</span></div>`}</section>`}
