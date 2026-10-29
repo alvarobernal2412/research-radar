@@ -1,7 +1,8 @@
 /* ---------- deadline timeline (conferences page) ---------- */
 const TL_W=1000,TL_BACK=21,TL_MIN_AHEAD=120,TL_MAX_AHEAD=365,TL_LANE=20,TL_CH=6.4;
 function tlDay(d){const t=Date.parse(d+"T12:00:00");if(isNaN(t))return null;const n=new Date();return Math.round((t-Date.UTC(n.getFullYear(),n.getMonth(),n.getDate(),12))/864e5)}
-function tlHue(ids,id){return Math.round((ids.indexOf(id)*137.508)%360)}
+const TL_HUES=[5,210,140,275,30,185,330,55,245,100,300,160];
+function tlHue(ids,id){return TL_HUES[ids.indexOf(id)%TL_HUES.length]}
 function tlEvents(confs){
   const by=new Map();
   for(const c of confs)for(const d of arr(c.deadlines))for(const [k,kind] of [["paperDue","paper"],["notification","notif"]]){
