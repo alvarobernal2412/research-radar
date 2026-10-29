@@ -71,9 +71,13 @@ function mockRuntime(seed) {
     "meta/run": { lastRunAt: "2026-10-13T14:00:00Z", status: "partial", counts: { newPapers: 3 },
       history: [{ date: "2026-10-13", status: "ok", accessMode: "api", newPapers: 9, note: "First scan" }, { date: "2026-10-14", status: "partial", accessMode: "api", newPapers: 1, note: "One source timed out" }] },
   };
+  const iso = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
   seed["conferences/exconf"] = { name: "Example Conference", acronym: "EXCONF", coreRank: "A", topicScore: 80,
+    deadlines: [{ track: "Research", type: "full", abstractDue: iso(10), paperDue: iso(17), notification: iso(80) }, { track: "Short", type: "short", paperDue: iso(17), notification: iso(70) }],
     aiPolicy: { stance: "disclosure", summary: "Authors must disclose AI tools.", rules: ["No AI-written reviews"], url: "https://example.org/ai", checkedAt: "2026-10-01" },
     formatGuidelines: { template: "ACM sigconf", templateUrl: "https://example.org/tpl", pageLimit: "10 pages", anonymization: "double-blind", referenceStyle: "numeric", rules: ["PDF only"], url: "https://example.org/fmt", checkedAt: "2026-10-01" } };
+  seed["conferences/tlconf"] = { name: "Timeline Conference", acronym: "TLC", coreRank: "B", topicScore: 60, deadlines: [{ track: "Main", paperDue: iso(-5), notification: iso(30) }, { track: "Main", paperDue: iso(95), notification: iso(200) }, { track: "Old", paperDue: iso(-90), notification: iso(-40) }] };
+  seed["conferences/nodates"] = { name: "No Dates Conference", acronym: "NDC", coreRank: "C", topicScore: 50 };
   seed["journals/exjournal"] = { name: "Example Journal", publisher: "Example Press", impactFactor: 3.2 };
   seed["radars/main"] = { name: "Test Radar", root: true, weekday: 6, time: "09:00" };
   seed["radars/nlp"] = { name: "NLP radar", root: false, weekday: 2, time: "09:00", scheduleText: "Wednesdays at 09:00", triggerId: "trig_nlp" };
@@ -98,6 +102,24 @@ function mockRuntime(seed) {
   check("brand comes from meta/config", (await pg.textContent(".brand b")) === "Test Radar");
   const rc = await pg.textContent("#rescount");
   check("contributions list renders", /of \d+ papers/.test(rc), rc);
+
+  // Deadline timeline on the conferences page.
+  await pg.goto("file://" + page + "#conferences");
+  await pg.waitForTimeout(500);
+  const nodes = await pg.$$eval(".tl-node", (els) => els.map((e) => ({ cls: e.className, title: e.title, left: e.style.left, c: e.style.cssText.match(/--c:[^;]*/)[0] })));
+  check("timeline merges tracks sharing a date and drops dates outside the window", nodes.length === 7, String(nodes.length));
+  check("timeline has a today marker", (await pg.$$(".tl-now")).length === 1);
+  check("each conference keeps one colour", new Set(nodes.filter((n) => n.title.startsWith("Timeline")).map((n) => n.c)).size === 1 && new Set(nodes.map((n) => n.c)).size === 2);
+  check("paper deadlines are filled, notifications are rings", nodes.filter((n) => n.cls.includes("paper")).length === 3 && nodes.filter((n) => n.cls.includes("notif")).length === 4);
+  check("past dates are faded", nodes.filter((n) => n.cls.includes("past")).length === 1);
+  const labs = await pg.$$eval(".tl-lab", (els) => els.map((e) => e.textContent));
+  check("labels carry the date and days left", labs.some((t) => t.includes("EXCONF paper") && t.includes("in 17d")) && labs.some((t) => t.includes("TLC paper") && t.includes("5d ago")), labs.join(" | "));
+  const pairs = await pg.$$eval(".tl-stem", (stems) => stems.map((s) => { const n = s.nextElementSibling.getBoundingClientRect(), r = s.getBoundingClientRect(); return Math.abs(n.left + n.width / 2 - (r.left + r.width / 2)); }));
+  check("every stem is centred on its node", pairs.length === nodes.length && pairs.every((d) => d < 1), pairs.map((d) => d.toFixed(1)).join(","));
+  check("legend notes conferences without dates", (await pg.textContent(".tl-legend")).includes("1 conference without dates"));
+  await shot("timeline");
+  await pg.goto("file://" + page + "#contributions");
+  await pg.waitForTimeout(500);
 
   // BibTeX selection: per-row checkbox, select/deselect all act on the filtered list.
   const rows = await pg.$$("article.prow input[data-sel]");
