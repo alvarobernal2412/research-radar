@@ -1,5 +1,7 @@
 # Research Radar
 
+> **Claude only.** Research Radar is designed for Claude (Claude Code and Claude artifacts) and is currently compatible only with Claude. Other agents, such as Codex, are not supported: the scheduled scans and the artifact depend on Claude-specific features that `multi-agent-runtime` does not carry over.
+
 Literature radars for your research topics, in one Claude artifact. Each radar has its own topic and a weekly Claude scan that finds new papers and scores how close each one is to that topic. Pick a radar from the menu bar and the same five pages show its data. Scans run on different weekdays so no source sees repeated requests from your IP. The site has five pages (per radar):
 
 - **Conferences:** a CORE tier list, deadlines for every track, the next edition and the one after, and committees with topic-related people flagged.
