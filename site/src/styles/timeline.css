@@ -1,0 +1,20 @@
+/* deadline timeline (conferences page) */
+:root{--tl-s:62%;--tl-l:40%}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--tl-l:68%}}
+:root[data-theme="dark"]{--tl-l:68%}
+.tl-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);margin-top:12px}
+.tl{position:relative;min-width:1000px;margin:0 20px}
+.tl-axis{position:absolute;left:0;right:0;height:3px;margin-top:-1px;background:var(--line);border-radius:2px}
+.tl-now{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--crit);pointer-events:none}
+.tl-nowlab{position:absolute;top:2px;transform:translateX(-50%);padding:0 6px;background:var(--crit);color:var(--surface);border-radius:3px;font-size:.68rem;font-weight:700;z-index:1}
+.tl-tick{position:absolute;transform:translateX(-50%);font-size:.7rem;color:var(--muted)}
+.tl-stem{position:absolute;width:1px;margin-left:-.5px;background:var(--c)}
+.tl-node{position:absolute;width:14px;height:14px;transform:translate(-50%,-50%);border-radius:50%;border:2px solid var(--c);background:var(--c);z-index:1}
+.tl-node.notif{background:var(--surface)}
+.tl-node:hover{box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 30%,transparent);text-decoration:none}
+.tl-lab{position:absolute;padding:1px 6px;font-size:.72rem;line-height:1.5;white-space:nowrap;color:var(--c);background:var(--surface);border-radius:3px;z-index:1}
+.tl-lab:hover{text-decoration:underline}
+.tl-node.past,.tl-lab.past,.tl-stem.past{opacity:.45}
+.tl-legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:.8rem}
+.tl-legend a{display:inline-flex;align-items:center;gap:6px;color:var(--ink)}
+.tl-legend i{width:10px;height:10px;border-radius:50%;background:var(--c)}

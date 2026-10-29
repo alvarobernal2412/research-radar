@@ -14,6 +14,7 @@ function renderConferences(){
     h+=`</div></div>`;
   }
   h+=`</div></section>`;
+  h+=deadlineTimeline(S.confs);
   const upcoming=main.map(c=>({c,nd:nextDeadline(c)})).sort((a,b)=>(a.nd?a.nd.date:"9999")<(b.nd?b.nd.date:"9999")?-1:1);
   h+=`<section class="block"><div class="sechead"><h2>Editions and deadlines</h2><span class="muted" style="font-size:.85rem">Sorted by the next open deadline</span></div><div class="tblwrap"><table><thead><tr><th>Venue</th><th>CORE</th><th>Topic fit</th><th>Next deadline</th><th>Next edition</th><th>Following edition</th></tr></thead><tbody>`;
   for(const {c,nd} of upcoming){h+=`<tr class="click" data-go="${H("conf",c.id)}"><td><a href="${H("conf",c.id)}"><b>${esc(c.acronym||c.name)}</b></a>${venueGaps(c,"conf").length?` <span class="pill amb" title="${esc(venueGaps(c,"conf").join(" "))}">Incomplete</span>`:""}<div class="muted" style="font-size:.78rem">${esc(c.acronym?c.name:"")}</div></td><td>${rkBadge(c.coreRank)}</td><td class="num"><span class="bar"><i style="width:${num(c.topicScore)||0}%"></i></span>${num(c.topicScore)!==null?c.topicScore:"—"}</td><td>${nd?`${dueHtml(nd)}<div class="muted mono" style="font-size:.74rem">${fmtDate(nd.date)} · ${esc(nd.what)}</div>`:dueHtml(null)}</td><td>${edLine(c.nextEdition)}</td><td>${edLine(c.followingEdition)}</td></tr>`}
