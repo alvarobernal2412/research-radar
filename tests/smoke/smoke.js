@@ -117,6 +117,17 @@ function mockRuntime(seed) {
   const pairs = await pg.$$eval(".tl-stem", (stems) => stems.map((s) => { const n = s.nextElementSibling.getBoundingClientRect(), r = s.getBoundingClientRect(); return Math.abs(n.left + n.width / 2 - (r.left + r.width / 2)); }));
   check("every stem is centred on its node", pairs.length === nodes.length && pairs.every((d) => d < 1), pairs.map((d) => d.toFixed(1)).join(","));
   check("legend notes conferences without dates", (await pg.textContent(".tl-legend")).includes("1 conference without dates"));
+  check("labels name the track, and +N when dates are shared by several", labs.some((t) => t.includes("TLC paper · Main")) && labs.some((t) => t.includes("EXCONF paper · Research +1")), labs.join(" | "));
+  check("zoom out is disabled at 1×", await pg.isDisabled('[data-tlz="-1"]'));
+  const w1 = await pg.$eval(".tl", (e) => e.getBoundingClientRect().width);
+  await pg.click('[data-tlz="1"]');
+  check("zoom in widens the line and shows the level", (await pg.$eval(".tl", (e) => e.getBoundingClientRect().width)) >= 1500 && (await pg.textContent(".tl-zl")).includes("1.5×") && w1 < 1500);
+  const stemsOk = await pg.$$eval(".tl-stem", (stems) => stems.every((s) => Math.abs(s.nextElementSibling.getBoundingClientRect().left + s.nextElementSibling.getBoundingClientRect().width / 2 - s.getBoundingClientRect().left - s.getBoundingClientRect().width / 2) < 1));
+  check("stems stay centred on their nodes when zoomed", stemsOk);
+  await pg.click('[data-tlz="today"]');
+  await shot("timeline-zoomed");
+  await pg.click('[data-tlz="-1"]');
+  check("zoom out returns to 1×", (await pg.textContent(".tl-zl")).includes("1×"));
   await shot("timeline");
   await pg.goto("file://" + page + "#contributions");
   await pg.waitForTimeout(500);
