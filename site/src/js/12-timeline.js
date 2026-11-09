@@ -11,7 +11,7 @@ function tlEvents(confs,f){
   const by=new Map();
   for(const c of confs)for(const d of arr(c.deadlines))for(const [k,kind] of [["paperDue","paper"],["notification","notif"]]){
     if(f.conf.length&&!f.conf.includes(c.id))continue;
-    if(f.type.length&&!f.type.includes(tlType(d)))continue;
+    if(f.type.length&&!f.type.some(t=>ckey(t)===ckey(tlType(d))))continue;
     const v=d[k],n=v?tlDay(v):null;
     if(n===null||n<-TL_BACK||n>TL_MAX_AHEAD)continue;
     const key=c.id+"|"+kind+"|"+v;
@@ -59,7 +59,7 @@ function deadlineTimeline(confs){
   const all=confs.filter(c=>arr(c.deadlines).length);
   const f=tlState();
   const confOpts=all.map(c=>[c.id,c.acronym||c.name]).sort((a,b)=>a[1].localeCompare(b[1]));
-  const typeOpts=[...new Set(all.flatMap(c=>arr(c.deadlines).map(tlType)))].sort().map(t=>[t,t]);
+  const typeOpts=ciLabels(all.flatMap(c=>arr(c.deadlines).map(tlType))).map(t=>[t,t]);
   f.conf=f.conf.filter(v=>confOpts.some(o=>o[0]===v));f.type=f.type.filter(v=>typeOpts.some(o=>o[0]===v));
   const evs=tlEvents(all,f);
   const Z=TL_ZOOMS[TLZ.i],W=TL_W*Z,filtered=f.conf.length||f.type.length;

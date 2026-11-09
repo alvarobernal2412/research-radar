@@ -131,7 +131,7 @@ function mockRuntime(seed) {
   const nNodes = async () => (await pg.$$(".tl-node")).length;
   await pg.click("#tlf-type summary");
   const typeOpts = await pg.$$eval('[data-tlf="type"]', (els) => els.map((e) => e.value));
-  check("paper-type filter lists each type, 'Other' for untyped", JSON.stringify(typeOpts) === JSON.stringify(["Other", "full", "short"]), typeOpts.join(","));
+  check("paper-type filter lists each type, 'Other' for untyped", JSON.stringify(typeOpts) === JSON.stringify(["full", "Other", "short"]), typeOpts.join(","));
   await pg.click('[data-tlf="type"][value="short"]');
   check("filtering by one type keeps only that type's nodes, and the dropdown stays open", (await nNodes()) === 2 && (await pg.$eval("#tlf-type", (d) => d.open)), String(await nNodes()));
   await pg.click('[data-tlf="type"][value="short"]');

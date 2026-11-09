@@ -51,6 +51,14 @@ const F_DEFAULT={q:"",minAff:0,kind:[],type:[],venue:[],theme:[],db:[],comp:"all
 const F=Object.assign({},F_DEFAULT);
 // Multi-select filters hold arrays (empty = no filter). Older saved filters held one string ("all" = none).
 const F_MULTI=["kind","type","venue","theme","db"];
+// Case- and spacing-insensitive key, so "Conference paper" and "conference paper" are one filter option.
+const ckey=s=>String(s==null?"":s).trim().replace(/\s+/g," ").toLowerCase();
+// One label per key, sorted: the most common spelling wins (ties go to the first seen).
+function ciLabels(values){
+  const m=new Map();
+  for(const v of values){const k=ckey(v);if(!k)continue;const e=m.get(k)||m.set(k,new Map()).get(k);e.set(v,(e.get(v)||0)+1)}
+  return [...m.values()].map(e=>[...e].reduce((a,b)=>b[1]>a[1]?b:a)[0]).sort((a,b)=>String(a).localeCompare(String(b)));
+}
 function normFilters(){for(const k of F_MULTI){const v=F[k];F[k]=Array.isArray(v)?v:(v&&v!=="all"?[v]:[])}}
 /* ---------- radars ---------- */
 // The first radar ("main") stays at the database root and keeps the old link and storage names;

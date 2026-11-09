@@ -47,7 +47,7 @@ function updateContribResults(){
   const res=document.getElementById("results");if(!res)return;
   setMulti("kind",VENUE_KINDS);
   const dv=f=>distinct(f).map(v=>[v,v]);
-  setMulti("type",dv(p=>p.paperType));setMulti("venue",dv(p=>p.venueName));setMulti("theme",dv(p=>p.themes));setMulti("db",dv(p=>p.foundIn));
+  setMulti("type",ciLabels(S.papers.map(p=>p.paperType)).map(v=>[v,v]));setMulti("venue",dv(p=>p.venueName));setMulti("theme",dv(p=>p.themes));setMulti("db",dv(p=>p.foundIn));
   const nHid=S.papers.filter(p=>(S.marks[p.id]||{}).hide).length;const hn=document.getElementById("flt-hid-n");if(hn)hn.textContent=nHid;
   if(!S.loaded.p){res.innerHTML=loadingBlock();document.getElementById("rescount").textContent="";S.shown=[];updateSelBar();return}
   if(!S.papers.length){S.shown=[];updateSelBar();res.innerHTML=emptyBlock("No papers yet",`The first scan looks back ${num(cfg().lookbackYears)||3} years; after that, each scan adds what's new. Papers appear here with their affinity to your topic.`);document.getElementById("rescount").textContent="";return}
@@ -55,7 +55,7 @@ function updateContribResults(){
   let L=S.papers.filter(p=>{
     if((num(p.affinity)||0)<F.minAff)return false;
     if(F.kind.length&&!F.kind.includes(p.venueKind))return false;
-    if(F.type.length&&!F.type.includes(p.paperType))return false;
+    if(F.type.length&&!F.type.some(t=>ckey(t)===ckey(p.paperType)))return false;
     if(F.venue.length&&!F.venue.includes(p.venueName))return false;
     if(F.theme.length&&!arr(p.themes).some(t=>F.theme.includes(t)))return false;
     if(F.db.length&&!arr(p.foundIn).some(d=>F.db.includes(d)))return false;
