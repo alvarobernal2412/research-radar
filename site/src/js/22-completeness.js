@@ -43,7 +43,7 @@ function venueGaps(v,kind){
     if(!v.nextEdition)g.push("Next edition not known.");
     const ppl=["steeringCommittee","generalChairs","pcChairs","seniorPC","programCommittee"].reduce((n,k)=>n+arr(v[k]).length,0);
     if(!ppl)g.push("No committee lists collected.");
-    if(!v.coreRank)g.push("CORE rank not recorded.");
+    if(!v.coreRank)g.push("CORE rank not collected yet.");
   }else{
     if(num(v.impactFactor)===null)g.push("No impact factor recorded.");
     const ppl=["editorsInChief","associateEditors","editorialBoard"].reduce((n,k)=>n+arr(v[k]).length,0);
