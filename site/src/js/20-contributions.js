@@ -42,7 +42,7 @@ function setMulti(key,options){
   el.classList.toggle("on",n>0);
 }
 function setSelect(id,list,cur,all){const el=document.getElementById(id);if(!el)return;const html=opts(list,cur,all);if(el.dataset.h!==html){el.innerHTML=html;el.dataset.h=html}if(cur!=="all"&&!list.includes(cur))el.value="all";}
-function venueRankVal(p){const c=S.confs.find(x=>x.id===p.venueId);if(c){const order={astar:4,a:3,b:2,c:1,u:0};return 10+order[rankKey(c.coreRank)]}const j=S.jours.find(x=>x.id===p.venueId);if(j)return 10+Math.min(4,(num(j.impactFactor)||0)/2);return 0}
+function venueRankVal(p){const c=S.confs.find(x=>x.id===p.venueId);if(c){const order={astar:4,a:3,b:2,c:1,u:0,nc:0};return 10+order[rankKey(c.coreRank)]}const j=S.jours.find(x=>x.id===p.venueId);if(j)return 10+Math.min(4,(num(j.impactFactor)||0)/2);return 0}
 function updateContribResults(){
   const res=document.getElementById("results");if(!res)return;
   setMulti("kind",VENUE_KINDS);

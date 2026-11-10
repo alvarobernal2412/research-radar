@@ -53,7 +53,7 @@ section.block{display:flex;flex-direction:column;gap:14px}
 
 /* rank badges */
 .rk{display:inline-flex;align-items:center;justify-content:center;min-width:2.3em;padding:1px 6px;border-radius:4px;font-family:var(--f-mono);font-size:.75rem;font-weight:500;border:1px solid currentColor;line-height:1.5;white-space:nowrap}
-.rk-astar{color:var(--rk-astar)} .rk-a{color:var(--rk-a)} .rk-b{color:var(--rk-b)} .rk-c{color:var(--rk-c)} .rk-u{color:var(--rk-u)}
+.rk-astar{color:var(--rk-astar)} .rk-a{color:var(--rk-a)} .rk-b{color:var(--rk-b)} .rk-c{color:var(--rk-c)} .rk-u{color:var(--rk-u)} .rk-nc{color:var(--rk-u);font-style:italic}
 .pill{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;font-size:.75rem;background:var(--sunk);color:var(--muted);white-space:nowrap}
 .pill.acc{background:var(--accent-soft);color:var(--accent)}
 .pill.amb{background:var(--amber-soft);color:var(--amber)}
@@ -66,7 +66,7 @@ section.block{display:flex;flex-direction:column;gap:14px}
 .tier+.tier{border-top:1px solid var(--line)}
 .tier-lab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--sunk);font-family:var(--f-display);font-size:1.7rem;font-weight:600}
 .tier-lab small{font-family:var(--f-body);font-size:.68rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
-.tier-lab.t-astar{color:var(--rk-astar)} .tier-lab.t-a{color:var(--rk-a)} .tier-lab.t-b{color:var(--rk-b)} .tier-lab.t-c{color:var(--rk-c)} .tier-lab.t-u{color:var(--rk-u)}
+.tier-lab.t-astar{color:var(--rk-astar)} .tier-lab.t-a{color:var(--rk-a)} .tier-lab.t-b{color:var(--rk-b)} .tier-lab.t-c{color:var(--rk-c)} .tier-lab.t-u{color:var(--rk-u)} .tier-lab.t-nc{color:var(--rk-u);font-style:italic}
 .tier-items{display:flex;flex-wrap:wrap;gap:10px;padding:12px;align-content:center;min-width:0}
 .tier-empty{color:var(--muted);font-size:.85rem;align-self:center}
 .vchip{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);color:var(--ink);width:200px;max-width:100%}

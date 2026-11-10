@@ -3,7 +3,7 @@
 // With several radars, every radar after the first keeps these under radars/<id>/ (see rp()); the registry is radars/<id>.
 // Private per viewer: data/users/<id>/marks, data/users/<id>/settings (holds API keys).
 const S={radars:[],radarsLoaded:false,rid:"main",confs:[],jours:[],papers:[],topic:null,run:null,config:null,control:null,settings:null,marks:{},sel:new Set(),shown:[],loaded:{c:false,j:false,p:false,m:false,settings:false},dbState:"loading",db:null,canEdit:false,uid:null,editingTopic:false,peopleRelOnly:true,jSort:"if"};
-const RANKS=[["A*","astar","Flagship"],["A","a","Excellent"],["B","b","Good"],["C","c","Other"],["Unranked","u","Not ranked"]];
+const RANKS=[["A*","astar","Flagship"],["A","a","Excellent"],["B","b","Good"],["C","c","Other"],["Unranked","u","Not ranked"],["Not collected","nc","Rank not collected yet"]];
 // Sources the weekly scan can search. `api` sources are queried directly; `browser` ones need the owner's Chrome.
 const SOURCES=[
   {id:"openalex",label:"OpenAlex",kind:"api",note:"Free scholarly API. Works best with an API key.",def:true},
@@ -33,9 +33,9 @@ const today=()=>new Date().toISOString().slice(0,10);
 function fmtDate(d){if(!d)return"—";const t=Date.parse(String(d).length===10?d+"T12:00:00":d);if(isNaN(t))return esc(d);return new Date(t).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"})}
 function fmtRange(a,b){if(!a)return"Dates not announced";return b&&b!==a?fmtDate(a)+" – "+fmtDate(b):fmtDate(a)}
 function daysUntil(d){const t=Date.parse(d+"T23:59:59");return isNaN(t)?null:Math.ceil((t-Date.now())/864e5)}
-function rankKey(r){const x=String(r||"").toUpperCase().replace("+","*");const f=RANKS.find(k=>k[0].toUpperCase()===x);return f?f[1]:"u"}
+function rankKey(r){if(r==null||String(r).trim()==="")return "nc";const x=String(r).trim().toUpperCase().replace("+","*");const f=RANKS.find(k=>k[0].toUpperCase()===x);return f?f[1]:"u"}
 function rankLabel(r){const k=rankKey(r);return RANKS.find(x=>x[1]===k)[0]}
-function rkBadge(r){return `<span class="rk rk-${rankKey(r)}" title="CORE rank">${esc(rankLabel(r))}</span>`}
+function rkBadge(r){const k=rankKey(r);return k==="nc"?`<span class="rk rk-nc" title="CORE rank not collected yet">?</span>`:`<span class="rk rk-${k}" title="CORE rank">${esc(rankLabel(r))}</span>`}
 function ring(v,size){size=size||44;v=Math.max(0,Math.min(100,+v||0));const r=size/2-4,c=2*Math.PI*r,off=c*(1-v/100),cls=v>=75?"hi":v>=50?"mid":"lo";return `<svg class="ring ${cls}${size>60?" big":""}" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="Affinity ${Math.round(v)} percent"><circle cx="${size/2}" cy="${size/2}" r="${r}" class="trk"/><circle cx="${size/2}" cy="${size/2}" r="${r}" class="val" stroke-dasharray="${c.toFixed(2)}" stroke-dashoffset="${off.toFixed(2)}" transform="rotate(-90 ${size/2} ${size/2})"/><text x="50%" y="50%" dy=".35em" text-anchor="middle">${Math.round(v)}</text></svg>`}
 function nextDeadline(c){let best=null;const t=today();for(const d of arr(c.deadlines)){for(const [k,lab] of [["abstractDue","abstract"],["paperDue","paper"]]){const v=d[k];if(v&&v>=t&&(!best||v<best.date))best={date:v,track:d.track||d.type||"Track",what:lab}}}return best}
 function dueHtml(nd){if(!nd)return`<span class="due muted">No open deadline</span>`;const n=daysUntil(nd.date);const cls=n<=14?"soon":n<=45?"near":"";return `<span class="due ${cls}" title="${esc(nd.track)} ${nd.what} due ${esc(nd.date)}">${n===0?"today":n+"d"} · ${esc(nd.track)}</span>`}
