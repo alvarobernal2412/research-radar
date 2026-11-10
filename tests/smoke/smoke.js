@@ -84,6 +84,7 @@ function mockRuntime(seed) {
   seed["radars/nlp/meta/config"] = { siteName: "NLP radar", tagline: "language models", triggerId: "trig_nlp", scheduleText: "Wednesdays at 09:00" };
   seed["radars/nlp/meta/topic"] = { description: "NLP", themes: [{ name: "Language models", weight: 1, keywords: ["llm"] }], revision: 1 };
   seed["radars/nlp/conferences/nlpconf"] = { name: "NLP Conference", acronym: "NLPC", coreRank: "A", topicScore: 70 };
+  seed["radars/nlp/conferences/norank"] = { name: "No Rank Conference", acronym: "NRC", topicScore: 40 };
   seed["radars/nlp/papers/n1"] = { title: "NLP only paper", authors: [{ name: "Nora Lang" }], year: 2026, venueId: "nlpconf", venueName: "NLP Conference", venueKind: "conference", affinity: 80, foundIn: ["OpenAlex"], discoveredAt: "2026-10-10", scoredTopicRevision: 1 };
   papers.forEach((p, i) => { seed["papers/" + (p.id || "p" + i)] = p; });
   const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {});
@@ -318,6 +319,13 @@ function mockRuntime(seed) {
   check("the other radar shows only its own papers", nlpList.includes("NLP only paper") && !nlpList.includes("Example Paper 1"), nlpList.slice(0, 80));
   check("brand shows the radar's own name", (await pg.textContent(".brand-btn")).includes("NLP radar"));
   check("tabs keep the radar in their links", (await pg.getAttribute('nav.tabs a[data-tab="conferences"]', "href")) === "#nlp~conferences");
+  await pg.goto("file://" + page + "#nlp~conferences");
+  await pg.waitForTimeout(500);
+  const nrTier = await pg.$$eval(".tier", (ts) => ts.map((t) => [t.querySelector(".tier-lab").textContent, t.textContent]));
+  check("a conference without a CORE rank sits under Not collected, not Unranked", nrTier.some(([l, x]) => l.includes("Rank not collected yet") && x.includes("NRC")) && !nrTier.some(([l, x]) => l.includes("Not ranked") && x.includes("NRC")), JSON.stringify(nrTier.map(([l]) => l)));
+  await pg.goto("file://" + page + "#nlp~conf.norank");
+  await pg.waitForTimeout(500);
+  check("its page says the rank was not collected", (await pg.textContent("#app")).includes("CORE rank not collected yet"));
   await pg.goto("file://" + page + "#nlp~conf.nlpconf");
   await pg.waitForTimeout(500);
   check("a venue link with a radar id opens that radar's venue", (await pg.textContent("#app")).includes("NLP Conference"));
